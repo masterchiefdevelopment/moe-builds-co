@@ -5,6 +5,7 @@ import { supabase } from './lib/supabase'
 import { useAuthStore } from './store/authStore'
 import Nav from './components/Nav'
 import Footer from './components/Footer'
+import Portfolio from './pages/Portfolio'
 import Home from './pages/Home'
 import Barbers from './pages/Barbers'
 import Services from './pages/Services'
@@ -48,18 +49,13 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <Toaster
-        position="bottom-right"
-        toastOptions={{
-          style: {
-            background: '#161616', color: '#F5F5F5',
-            border: '1px solid #222', fontFamily: "'Barlow', sans-serif",
-          },
-          success: { iconTheme: { primary: '#D4AF37', secondary: '#0A0A0A' } },
-        }}
-      />
+      <Toaster position="bottom-right" toastOptions={{
+        style: { background: '#161616', color: '#F5F5F5', border: '1px solid #222', fontFamily: "'Barlow', sans-serif" },
+        success: { iconTheme: { primary: '#D4AF37', secondary: '#0A0A0A' } },
+      }} />
       <Routes>
-        <Route path="/"         element={<Shell><Home /></Shell>} />
+        <Route path="/"         element={<Portfolio />} />
+        <Route path="/barber"   element={<Shell><Home /></Shell>} />
         <Route path="/barbers"  element={<Shell><Barbers /></Shell>} />
         <Route path="/services" element={<Shell><Services /></Shell>} />
         <Route path="/book"     element={<Shell><Book /></Shell>} />
