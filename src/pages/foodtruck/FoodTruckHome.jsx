@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
-const HERO_PHOTO = 'https://images.unsplash.com/photo-1567521464027-f127ff144326?w=1600&q=80'
+const HERO_PHOTO = 'https://images.unsplash.com/photo-1565123409695-7b5ef63a2efb?w=1600&q=80'
 
 const SWATCHES = ['#FF6B2B', '#E63946', '#F4A261', '#2A9D8F', '#9B5DE5', '#F72585']
 
@@ -33,8 +33,9 @@ const PERKS = [
 
 export default function FoodTruckHome() {
   const [demo, setDemo]     = useState(DEFAULT_STATE)
-  const [photos, setPhotos] = useState(DEFAULT_PHOTOS)
-  const [loading, setLoading] = useState(false)
+  const [photos, setPhotos]     = useState(DEFAULT_PHOTOS)
+  const [loading, setLoading]   = useState(false)
+  const [panelOpen, setPanelOpen] = useState(false)
 
   const [draft, setDraft] = useState({
     truckName: DEFAULT_STATE.truckName,
@@ -69,8 +70,37 @@ export default function FoodTruckHome() {
   return (
     <div style={{ background: '#0f0f0f', minHeight: '100vh', color: '#F5F5F5' }}>
 
+      {/* ── Gear FAB ─────────────────────────────────── */}
+      <button
+        onClick={() => setPanelOpen(o => !o)}
+        title="Demo Builder"
+        style={{
+          position:     'fixed',
+          bottom:       '24px',
+          right:        '24px',
+          zIndex:       200,
+          width:        '48px',
+          height:       '48px',
+          borderRadius: '50%',
+          background:   panelOpen ? c : '#1a1a1a',
+          border:       `1px solid ${panelOpen ? c : '#333'}`,
+          color:        panelOpen ? '#0f0f0f' : '#888',
+          fontSize:     '20px',
+          cursor:       'pointer',
+          display:      'flex',
+          alignItems:   'center',
+          justifyContent: 'center',
+          boxShadow:    '0 4px 20px rgba(0,0,0,0.5)',
+          transition:   'background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s',
+        }}
+        onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
+        onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+      >
+        ⚙️
+      </button>
+
       {/* ── Personalization Panel ─────────────────────── */}
-      <div style={{
+      {panelOpen && <div style={{
         background:   '#111',
         borderBottom: '1px solid #222',
         padding:      '20px',
@@ -200,7 +230,7 @@ export default function FoodTruckHome() {
             </button>
           </div>
         </div>
-      </div>
+      </div>}
 
       {/* ── Hero ─────────────────────────────────────── */}
       <section style={{
@@ -228,7 +258,7 @@ export default function FoodTruckHome() {
         {/* Gradient overlay */}
         <div style={{
           position: 'absolute', inset: 0,
-          background: 'linear-gradient(to top, rgba(10,10,10,0.97) 0%, rgba(10,10,10,0.65) 50%, rgba(10,10,10,0.2) 100%)',
+          background: 'linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.3) 100%)',
         }} />
 
         {/* Content */}
@@ -261,7 +291,7 @@ export default function FoodTruckHome() {
           {/* Headline */}
           <h1 style={{
             fontFamily:   "'Bebas Neue', sans-serif",
-            fontSize:      'clamp(48px, 10vw, 96px)',
+            fontSize:      'clamp(64px, 12vw, 120px)',
             letterSpacing: '3px',
             lineHeight:    0.9,
             marginBottom:  '20px',
