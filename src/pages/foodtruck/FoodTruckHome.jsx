@@ -1,94 +1,61 @@
 // src/pages/foodtruck/FoodTruckHome.jsx
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
-const UNSPLASH_KEY = 'X0sMc_3XFjYnk1ypNqEBqjhPOCl1CWU6hGLDQ0QKhLc'
+const HERO_PHOTO = 'https://images.unsplash.com/photo-1567521464027-f127ff144326?w=1600&q=80'
 
 const SWATCHES = ['#FF6B2B', '#E63946', '#F4A261', '#2A9D8F', '#9B5DE5', '#F72585']
+
+const DEFAULT_PHOTOS = {
+  'Smash Burger': 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80',
+  'Birria Tacos': 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=400&q=80',
+  'Loaded Fries': 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=400&q=80',
+  'Agua Fresca':  'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400&q=80',
+}
 
 const DEFAULT_STATE = {
   truckName: "Moe's Food Truck",
   color: '#FF6B2B',
   items: [
-    { name: 'Smash Burger',  desc: 'Double smash, american cheese, secret sauce', price: '12', query: 'smash burger closeup' },
-    { name: 'Birria Tacos',  desc: 'Consommé dip, oaxaca cheese, cilantro onion', price: '14', query: 'birria tacos mexican' },
-    { name: 'Loaded Fries',  desc: 'Cheese sauce, jalapeños, crispy bacon crumble', price: '8', query: 'loaded cheese fries' },
-    { name: 'Agua Fresca',   desc: 'Rotating seasonal flavors, made fresh daily',  price: '4',  query: 'agua fresca colorful drink' },
+    { name: 'Smash Burger',  desc: 'Double smash, american cheese, secret sauce', price: '12' },
+    { name: 'Birria Tacos',  desc: 'Consommé dip, oaxaca cheese, cilantro onion', price: '14' },
+    { name: 'Loaded Fries',  desc: 'Cheese sauce, jalapeños, crispy bacon crumble', price: '8' },
+    { name: 'Agua Fresca',   desc: 'Rotating seasonal flavors, made fresh daily',  price: '4' },
   ],
 }
 
 const PERKS = [
-  { icon: '🔥', title: 'Made Fresh',      desc: 'Every order cooked to order. No heat lamps, no shortcuts, ever.' },
-  { icon: '📍', title: 'Find Us Daily',   desc: 'We move around SA. Check our location tab before you roll out.' },
-  { icon: '⏭️', title: 'Skip the Line',   desc: 'Order ahead online and pick up hot and ready — zero wait.' },
-  { icon: '⭐', title: 'Earn Rewards',    desc: '10 orders earns you a free meal. No app or card required.' },
+  { icon: '🔥', title: 'Made Fresh',    desc: 'Every order cooked to order. No heat lamps, no shortcuts, ever.' },
+  { icon: '📍', title: 'Find Us Daily', desc: 'We move around SA. Check our location tab before you roll out.' },
+  { icon: '⏭️', title: 'Skip the Line', desc: 'Order ahead online and pick up hot and ready — zero wait.' },
+  { icon: '⭐', title: 'Earn Rewards',  desc: '10 orders earns you a free meal. No app or card required.' },
 ]
 
-async function fetchPhoto(query) {
-  try {
-    const r = await fetch(
-      `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=3&orientation=landscape&client_id=${UNSPLASH_KEY}`
-    )
-    const d = await r.json()
-    return d.results?.[0]?.urls?.regular || null
-  } catch {
-    return null
-  }
-}
-
-async function fetchHeroPhoto(query) {
-  try {
-    const r = await fetch(
-      `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=1&orientation=landscape&client_id=${UNSPLASH_KEY}`
-    )
-    const d = await r.json()
-    return d.results?.[0]?.urls?.full || d.results?.[0]?.urls?.regular || null
-  } catch {
-    return null
-  }
-}
-
 export default function FoodTruckHome() {
-  const [demo, setDemo]         = useState(DEFAULT_STATE)
-  const [photos, setPhotos]     = useState({})
-  const [heroPhoto, setHeroPhoto] = useState(null)
-  const [loading, setLoading]   = useState(false)
+  const [demo, setDemo]     = useState(DEFAULT_STATE)
+  const [photos, setPhotos] = useState(DEFAULT_PHOTOS)
+  const [loading, setLoading] = useState(false)
 
-  // Draft state for the panel
   const [draft, setDraft] = useState({
     truckName: DEFAULT_STATE.truckName,
     color: DEFAULT_STATE.color,
     items: DEFAULT_STATE.items.map(i => ({ name: i.name, price: i.price })),
   })
 
-  // Load photos on mount or when demo changes
-  useEffect(() => {
-    let cancelled = false
-    async function load() {
-      const heroQ = `${demo.truckName} food truck street food gourmet`
-      const [hero, ...itemPhotos] = await Promise.all([
-        fetchHeroPhoto('gourmet food truck night city'),
-        ...demo.items.map(item => fetchPhoto(item.query || item.name)),
-      ])
-      if (!cancelled) {
-        setHeroPhoto(hero)
-        const map = {}
-        demo.items.forEach((item, i) => { map[item.name] = itemPhotos[i] })
-        setPhotos(map)
-      }
-    }
-    load()
-    return () => { cancelled = true }
-  }, [demo])
-
-  const handleBuildDemo = async () => {
+  const handleBuildDemo = () => {
     setLoading(true)
     const newItems = draft.items.map((di, i) => ({
       name:  di.name  || DEFAULT_STATE.items[i].name,
       desc:  DEFAULT_STATE.items[i].desc,
       price: di.price || DEFAULT_STATE.items[i].price,
-      query: di.name  || DEFAULT_STATE.items[i].query,
     }))
+    // Remap photos: keep static URL for unchanged names, use first default for new names
+    const defaultUrls = Object.values(DEFAULT_PHOTOS)
+    const newPhotos = {}
+    newItems.forEach((item, i) => {
+      newPhotos[item.name] = DEFAULT_PHOTOS[item.name] || defaultUrls[i] || defaultUrls[0]
+    })
+    setPhotos(newPhotos)
     setDemo({
       truckName: draft.truckName || DEFAULT_STATE.truckName,
       color:     draft.color,
@@ -247,23 +214,16 @@ export default function FoodTruckHome() {
         padding:    '0 20px 52px',
       }}>
         {/* Hero photo */}
-        {heroPhoto ? (
-          <img
-            src={heroPhoto}
-            alt="Hero"
-            style={{
-              position: 'absolute', inset: 0,
-              width: '100%', height: '100%',
-              objectFit: 'cover',
-              objectPosition: 'center',
-            }}
-          />
-        ) : (
-          <div style={{
+        <img
+          src={HERO_PHOTO}
+          alt="Hero"
+          style={{
             position: 'absolute', inset: 0,
-            background: 'linear-gradient(135deg, #1a0a00, #1a1a1a)',
-          }} />
-        )}
+            width: '100%', height: '100%',
+            objectFit: 'cover',
+            objectPosition: 'center',
+          }}
+        />
 
         {/* Gradient overlay */}
         <div style={{
