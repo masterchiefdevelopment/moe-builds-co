@@ -1,0 +1,20 @@
+{
+  "client_id": "ba9ca81d-e71b-4e7c-8e51-e6b0d99ae007",
+  "business_name": "Playmakers Barbershop",
+  "business_type": "barbershop",
+  "package": "standard",
+  "brand_color": "#C9A84C",
+  "generated_at": "2026-06-04T20:08:33.618Z",
+  "content": {
+    "hero_headline": "Where Every Cut Makes You a Champion",
+    "hero_subtext": "Precision cuts and fresh styles that keep you looking and feeling your best.",
+    "about_text": "At Playmakers Barbershop, we believe a great cut is more than just a trim — it's a confidence boost. Our skilled barbers bring passion and precision to every appointment, creating a welcoming space where you always leave looking sharp. Whether you're a first-timer or a regular, you're part of the Playmakers family.",
+    "services": [
+      "Haircut & Style",
+      "Fade",
+      "Beard Trim",
+      "Hot Towel Shave"
+    ],
+    "contact_text": "Book your appointment today and let us help you bring your A-game!"
+  }
+}
