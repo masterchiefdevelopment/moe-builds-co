@@ -1,16 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Premier Barbershop</title>
-    <meta name="description" content="Premier Barbershop — San Antonio's finest cuts. Book your barber online." />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Client Name</title>
+  <style>
+    :root { --brand: #000000; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; color: #1a1a1a; }
+    header { background: var(--brand); color: #fff; padding: 1.5rem 2rem; display:flex; align-items:center; justify-content:space-between; }
+    header h1 { font-size: 1.8rem; letter-spacing: -.5px; }
+    nav a { color:#fff; text-decoration:none; margin-left:1.5rem; font-size:.95rem; }
+    .hero { background: var(--brand); color: #fff; text-align:center; padding: 6rem 2rem; }
+    .hero h2 { font-size: 2.5rem; margin-bottom: 1rem; }
+    .hero p  { font-size: 1.1rem; opacity: .9; max-width:600px; margin:auto; }
+    section { padding: 4rem 2rem; max-width: 900px; margin: auto; }
+    section h2 { color: var(--brand); margin-bottom: 1rem; font-size: 1.5rem; }
+    section p  { line-height: 1.8; color: #555; }
+    .card-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:1rem; margin-top:1rem; } .card { border:2px solid var(--brand); border-radius:8px; padding:1rem; text-align:center; font-weight:600; }
+    footer { background: #111; color: #aaa; text-align:center; padding: 2rem; font-size:.85rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Client Name</h1>
+    <nav><a href="#about">About</a><a href="#services">Services</a><a href="#gallery">Gallery</a><a href="#contact">Contact</a></nav>
+  </header>
+  <div class="hero">
+    <h2>Sharp Cuts, Clean Lines, Confident You</h2>
+    <p>Experience premium barbering crafted to keep you looking and feeling your best.</p>
+  </div>
+  <section id="about">
+    <h2>About Us</h2>
+    <p>At Client Name, we believe a great haircut is more than just a trim — it's a confidence boost. Our skilled barbers are dedicated to delivering precise, personalized cuts in a welcoming atmosphere. Whether it's your first visit or your fiftieth, you'll always leave looking sharp.</p>
+  </section>
+  <section id="services">
+    <h2>Our Services</h2>
+    <div class="card-grid"><div class="card">Haircut & Style</div><div class="card">Fade</div><div class="card">Beard Trim</div><div class="card">Hot Towel Shave</div></div>
+  </section>
+  <section id="gallery">
+    <h2>Gallery</h2>
+    <p>Photos coming soon.</p>
+  </section>
+  <section id="contact">
+    <h2>Contact</h2>
+    <p>Book your appointment today and let us take care of the rest!</p>
+  </section>
+  <footer>
+    <p>&copy; Client Name &mdash; Built by <a href="#" style="color:#888">Moe Builds Co.</a></p>
+  </footer>
+</body>
 </html>

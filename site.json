@@ -1,0 +1,20 @@
+{
+  "client_id": "3e0cbaff-261f-44e2-8f95-2370e40e5b20",
+  "business_name": "Client Name",
+  "business_type": "barbershop",
+  "package": "standard",
+  "brand_color": "#000000",
+  "generated_at": "2026-06-04T22:14:35.047Z",
+  "content": {
+    "hero_headline": "Sharp Cuts, Clean Lines, Confident You",
+    "hero_subtext": "Experience premium barbering crafted to keep you looking and feeling your best.",
+    "about_text": "At Client Name, we believe a great haircut is more than just a trim — it's a confidence boost. Our skilled barbers are dedicated to delivering precise, personalized cuts in a welcoming atmosphere. Whether it's your first visit or your fiftieth, you'll always leave looking sharp.",
+    "services": [
+      "Haircut & Style",
+      "Fade",
+      "Beard Trim",
+      "Hot Towel Shave"
+    ],
+    "contact_text": "Book your appointment today and let us take care of the rest!"
+  }
+}
