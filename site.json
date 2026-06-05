@@ -1,0 +1,20 @@
+{
+  "client_id": "ecc8a87a-7d16-422d-8ad0-e6481293da2f",
+  "business_name": "Moes barber shop",
+  "business_type": "barbershop",
+  "package": "premium",
+  "brand_color": "#E03030",
+  "generated_at": "2026-06-05T11:00:09.181Z",
+  "content": {
+    "hero_headline": "Sharp Cuts, Premium Style at Moe's",
+    "hero_subtext": "Experience the finest grooming in town — where every cut is a masterpiece.",
+    "about_text": "At Moe's Barber Shop, we believe a great cut is more than just a haircut — it's a confidence boost. Our skilled barbers combine classic techniques with modern style to deliver a premium experience every visit. Step in, relax, and leave looking and feeling your absolute best.",
+    "services": [
+      "Precision Fade",
+      "Luxury Hot Towel Shave",
+      "Beard Sculpting",
+      "Classic Gentleman's Cut"
+    ],
+    "contact_text": "Book your premium appointment today and let Moe's transform your look!"
+  }
+}
