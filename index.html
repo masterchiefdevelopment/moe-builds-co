@@ -1,16 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Premier Barbershop</title>
-    <meta name="description" content="Premier Barbershop — San Antonio's finest cuts. Book your barber online." />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Alexis food truck</title>
+  <style>
+    :root { --brand: #E03030; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; color: #1a1a1a; }
+    header { background: var(--brand); color: #fff; padding: 1.5rem 2rem; display:flex; align-items:center; justify-content:space-between; }
+    header h1 { font-size: 1.8rem; letter-spacing: -.5px; }
+    nav a { color:#fff; text-decoration:none; margin-left:1.5rem; font-size:.95rem; }
+    .hero { background: var(--brand); color: #fff; text-align:center; padding: 6rem 2rem; }
+    .hero h2 { font-size: 2.5rem; margin-bottom: 1rem; }
+    .hero p  { font-size: 1.1rem; opacity: .9; max-width:600px; margin:auto; }
+    section { padding: 4rem 2rem; max-width: 900px; margin: auto; }
+    section h2 { color: var(--brand); margin-bottom: 1rem; font-size: 1.5rem; }
+    section p  { line-height: 1.8; color: #555; }
+    .card-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; margin-top:1rem; } .card { border-left:4px solid var(--brand); padding:.75rem 1rem; background:#f9f9f9; font-weight:600; }
+    footer { background: #111; color: #aaa; text-align:center; padding: 2rem; font-size:.85rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Alexis food truck</h1>
+    <nav><a href="#about">About</a><a href="#menu">Menu</a><a href="#schedule">Schedule</a><a href="#catering">Catering</a><a href="#gallery">Gallery</a><a href="#contact">Contact</a></nav>
+  </header>
+  <div class="hero">
+    <h2>Bold Flavors Rolling Straight to Your Street</h2>
+    <p>Alexis Food Truck brings premium, handcrafted bites to every corner of the city.</p>
+  </div>
+  <section id="about">
+    <h2>About Us</h2>
+    <p>At Alexis Food Truck, we believe great food should be an experience, not just a meal. Every dish is crafted with fresh, locally sourced ingredients and a whole lot of love. Whether you're grabbing a quick lunch or feeding a crowd, we bring premium quality right to your neighborhood.</p>
+  </section>
+  <section id="menu">
+    <h2>Our Menu</h2>
+    <div class="card-grid"><div class="card">Signature Smash Burger</div><div class="card">Truffle Loaded Fries</div><div class="card">Spicy Baja Street Tacos</div><div class="card">Grilled Chicken Avocado Wrap</div></div>
+  </section>
+  <section id="schedule">
+    <h2>Find Us</h2>
+    <p>Follow us on social media for daily locations and hours.</p>
+  </section>
+  <section id="catering">
+    <h2>Catering</h2>
+    <p>Bring the experience to your event. Contact us for catering packages.</p>
+  </section>
+  <section id="gallery">
+    <h2>Gallery</h2>
+    <p>Photos coming soon.</p>
+  </section>
+  <section id="contact">
+    <h2>Contact</h2>
+    <p>Find us near you or book Alexis Food Truck for your next event — we'd love to feed your crew!</p>
+  </section>
+  <footer>
+    <p>&copy; Alexis food truck &mdash; Built by <a href="#" style="color:#888">Moe Builds Co.</a></p>
+  </footer>
+</body>
 </html>

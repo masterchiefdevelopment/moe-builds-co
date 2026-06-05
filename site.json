@@ -1,0 +1,20 @@
+{
+  "client_id": "2e5e03b9-281a-4039-9f56-545a2fa24894",
+  "business_name": "Alexis food truck",
+  "business_type": "foodtruck",
+  "package": "premium",
+  "brand_color": "#E03030",
+  "generated_at": "2026-06-05T18:18:10.095Z",
+  "content": {
+    "hero_headline": "Bold Flavors Rolling Straight to Your Street",
+    "hero_subtext": "Alexis Food Truck brings premium, handcrafted bites to every corner of the city.",
+    "about_text": "At Alexis Food Truck, we believe great food should be an experience, not just a meal. Every dish is crafted with fresh, locally sourced ingredients and a whole lot of love. Whether you're grabbing a quick lunch or feeding a crowd, we bring premium quality right to your neighborhood.",
+    "menu_items": [
+      "Signature Smash Burger",
+      "Truffle Loaded Fries",
+      "Spicy Baja Street Tacos",
+      "Grilled Chicken Avocado Wrap"
+    ],
+    "contact_text": "Find us near you or book Alexis Food Truck for your next event — we'd love to feed your crew!"
+  }
+}
