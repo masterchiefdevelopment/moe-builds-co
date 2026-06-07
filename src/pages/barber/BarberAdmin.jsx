@@ -3,8 +3,9 @@ import { supabase } from '../../lib/supabase'
 import { SHOP_CONFIG as C } from './config'
 import toast from 'react-hot-toast'
 
-const STATUSES = ['Confirmed', 'In Chair', 'Done', 'No Show']
-const NEXT = { 'Confirmed': 'In Chair', 'In Chair': 'Done', 'Done': 'No Show', 'No Show': 'Confirmed' }
+const STATUSES = ['confirmed', 'in_chair', 'done', 'no_show']
+const STATUS_LABELS = { confirmed: 'Confirmed', in_chair: 'In Chair', done: 'Done', no_show: 'No Show' }
+const NEXT = { confirmed: 'in_chair', in_chair: 'done', done: 'no_show', no_show: 'confirmed' }
 
 function isSameDay(a, b) { return a.toDateString() === b.toDateString() }
 function startOfWeek(d) {
@@ -34,7 +35,7 @@ export default function BarberAdmin() {
     ...b,
     _date: b.booked_at ? new Date(b.booked_at) : null,
     _price: (b.services?.price_cents ?? 0) / 100,
-    _status: localStatus[b.id] || (STATUSES.includes(b.status) ? b.status : 'Confirmed'),
+    _status: localStatus[b.id] || (STATUSES.includes(b.status) ? b.status : 'confirmed'),
   })), [bookings, localStatus])
 
   const today = new Date()
@@ -45,7 +46,7 @@ export default function BarberAdmin() {
   const weekTotal = weekBookings.reduce((s, b) => s + b._price, 0)
 
   const cycleStatus = async (booking) => {
-    const next = NEXT[booking._status] || 'Confirmed'
+    const next = NEXT[booking._status] || 'confirmed'
     setLocalStatus(prev => ({ ...prev, [booking.id]: next }))
     try {
       const { error } = await supabase.from('bookings').update({ status: next }).eq('id', booking.id)
@@ -83,8 +84,8 @@ export default function BarberAdmin() {
       </div>
       <span style={{
         background: 'transparent', border: `1px solid ${C.borderSubtle}`, borderRadius: 100,
-        color: b._status === 'Done' ? C.accentColor : C.textPrimary, fontSize: 13, padding: '8px 16px',
-      }}>{b._status} → {NEXT[b._status]}</span>
+        color: b._status === 'done' ? C.accentColor : C.textPrimary, fontSize: 13, padding: '8px 16px',
+      }}>{STATUS_LABELS[b._status] || b._status} → {STATUS_LABELS[NEXT[b._status]] || NEXT[b._status]}</span>
     </div>
   )
 

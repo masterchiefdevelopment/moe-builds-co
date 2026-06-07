@@ -2,6 +2,9 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
+import { createOrder } from '../../lib/supabase'
+import { useAuthStore } from '../../store/authStore'
+import { TRUCK_CONFIG as C } from './config'
 
 const ORDER_ITEMS = [
   { id: 1,  name: 'Smash Burger',       price: 12, emoji: '🍔', category: 'Burgers' },
@@ -29,6 +32,7 @@ const PICKUP_TIMES = [
 const CATEGORIES = ['All', 'Burgers', 'Tacos', 'Sides', 'Drinks']
 
 export default function FoodTruckOrder() {
+  const { user } = useAuthStore()
   const [cart,       setCart]       = useState({})
   const [filter,     setFilter]     = useState('All')
   const [step,       setStep]       = useState(1)   // 1 = items, 2 = details, 3 = confirmed
@@ -62,7 +66,16 @@ export default function FoodTruckOrder() {
   const handleSubmit = async () => {
     if (!validateStep2()) return
     setLoading(true)
-    await new Promise(r => setTimeout(r, 900))
+    try {
+      await createOrder({
+        restaurant_id: C.restaurantId,
+        user_id: user?.id ?? null,
+        items: cartItems.map(i => ({ name: i.name, price: i.price, qty: cart[i.id] })),
+        pickup_time: pickupTime,
+        status: 'pending',
+        total: cartTotal,
+      })
+    } catch { /* demo mode */ }
     setLoading(false)
     setStep(3)
   }

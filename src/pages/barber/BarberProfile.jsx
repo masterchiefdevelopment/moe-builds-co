@@ -9,8 +9,11 @@ const PUNCH_GOAL = 10
 
 const STATUS_STYLE = {
   confirmed: { background: 'rgba(201,162,39,0.12)', color: C.accentColor, border: '1px solid rgba(201,162,39,0.25)' },
+  in_chair: { background: 'rgba(201,162,39,0.12)', color: C.accentColor, border: '1px solid rgba(201,162,39,0.25)' },
   completed: { background: 'rgba(74,222,128,0.08)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.2)' },
+  done: { background: 'rgba(74,222,128,0.08)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.2)' },
   cancelled: { background: 'rgba(220,38,38,0.08)', color: '#f87171', border: '1px solid rgba(220,38,38,0.2)' },
+  no_show: { background: 'rgba(220,38,38,0.08)', color: '#f87171', border: '1px solid rgba(220,38,38,0.2)' },
 }
 
 export default function BarberProfile() {
@@ -122,7 +125,7 @@ export default function BarberProfile() {
                 <span style={{
                   ...(STATUS_STYLE[b._status] || STATUS_STYLE.confirmed),
                   fontSize: 11, letterSpacing: 1.5, textTransform: 'uppercase', padding: '4px 10px', borderRadius: 100,
-                }}>{b._status === 'confirmed' && i < upcoming.length ? 'Upcoming' : b._status}</span>
+                }}>{b._status === 'confirmed' && i < upcoming.length ? 'Upcoming' : b._status.replace('_', ' ')}</span>
               </div>
             ))}
           </div>

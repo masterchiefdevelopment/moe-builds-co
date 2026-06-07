@@ -1,8 +1,9 @@
 // src/pages/foodtruck/FoodTruckProfile.jsx
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { signOut } from '../../lib/supabase'
+import { signOut, getCustomerOrders } from '../../lib/supabase'
 import { useAuthStore } from '../../store/authStore'
+import { TRUCK_CONFIG as C } from './config'
 import toast from 'react-hot-toast'
 
 const MOCK_ORDERS = [
@@ -51,7 +52,6 @@ const STATUS_STYLE = {
 }
 
 const PUNCH_GOAL  = 10
-const PUNCH_COUNT = 4
 
 export default function FoodTruckProfile() {
   const navigate              = useNavigate()
@@ -59,6 +59,28 @@ export default function FoodTruckProfile() {
   const [tab,     setTab]     = useState('orders')
   const [leaving, setLeaving] = useState(false)
   const [form,    setForm]    = useState({ name: '', phone: '' })
+  const [orders,  setOrders]  = useState(null) // null = loading/unknown -> fall back to mock
+
+  useEffect(() => {
+    if (!user) return
+    getCustomerOrders(C.restaurantId, user.id)
+      .then(({ data }) => { if (data && data.length) setOrders(data) })
+      .catch(() => {})
+  }, [user])
+
+  const realOrders = orders && orders.length
+    ? orders.map(o => ({
+        id: o.id,
+        items: Array.isArray(o.items) ? o.items.map(i => i.name || i) : [],
+        total: `$${Number(o.total ?? 0).toFixed(2)}`,
+        date: o.created_at ? new Date(o.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—',
+        time: o.pickup_time || '—',
+        location: C.name,
+        status: o.status === 'completed' ? 'completed' : (o.status === 'cancelled' ? 'cancelled' : 'upcoming'),
+      }))
+    : MOCK_ORDERS
+
+  const punchCount = orders && orders.length ? Math.min(orders.length, PUNCH_GOAL) : 4
 
   const handleSignOut = async () => {
     setLeaving(true)
@@ -80,8 +102,8 @@ export default function FoodTruckProfile() {
     .toUpperCase()
     .slice(0, 2)
 
-  const upcomingOrders  = MOCK_ORDERS.filter(o => o.status === 'upcoming')
-  const completedOrders = MOCK_ORDERS.filter(o => o.status === 'completed')
+  const upcomingOrders  = realOrders.filter(o => o.status === 'upcoming')
+  const completedOrders = realOrders.filter(o => o.status === 'completed')
 
   return (
     <div style={{
@@ -201,7 +223,7 @@ export default function FoodTruckProfile() {
               fontSize:       '26px',
               letterSpacing:  '2px',
             }}>
-              {PUNCH_COUNT}/{PUNCH_GOAL} ORDERS
+              {punchCount}/{PUNCH_GOAL} ORDERS
             </div>
           </div>
 
@@ -239,18 +261,18 @@ export default function FoodTruckProfile() {
                 alignItems:     'center',
                 justifyContent: 'center',
                 fontSize:        '18px',
-                background:      i < PUNCH_COUNT ? '#FF6B2B' : 'transparent',
-                border:          i < PUNCH_COUNT ? 'none' : '2px dashed #2a2a2a',
+                background:      i < punchCount ? '#FF6B2B' : 'transparent',
+                border:          i < punchCount ? 'none' : '2px dashed #2a2a2a',
                 transition:      'all 0.2s',
               }}
             >
-              {i < PUNCH_COUNT ? '🔥' : ''}
+              {i < punchCount ? '🔥' : ''}
             </div>
           ))}
         </div>
 
         <p style={{ fontSize: '12px', color: '#444' }}>
-          {PUNCH_GOAL - PUNCH_COUNT} more order{PUNCH_GOAL - PUNCH_COUNT !== 1 ? 's' : ''} until your free meal
+          {PUNCH_GOAL - punchCount} more order{PUNCH_GOAL - punchCount !== 1 ? 's' : ''} until your free meal
         </p>
       </div>
 
