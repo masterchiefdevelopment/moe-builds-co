@@ -22,9 +22,9 @@ const DEMOS = [
   {
     id: 3,
     industry: 'Restaurant',
-    name: 'Jalisco Grill Mexican Restaurant',
-    desc: 'Full ordering platform with online ordering, customer accounts, loyalty punch card, and an admin dashboard.',
-    features: ['Online Ordering', 'Customer Accounts', 'Loyalty Punch Card', 'Admin Dashboard'],
+    name: 'Jalisco Grill',
+    desc: 'Full restaurant app with online ordering, menu management, loyalty rewards, and customer accounts.',
+    features: ['Online Ordering', 'Menu Management', 'Loyalty System', 'Customer Accounts'],
     link: '/restaurant',
     status: 'Live Demo',
   },
@@ -146,7 +146,7 @@ export default function Portfolio() {
         <div style={{ background: 'linear-gradient(135deg, #161616, #1a1a1a)', border: '1px solid rgba(212,175,55,0.2)', borderRadius: '12px', padding: '36px', textAlign: 'center', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '20px' }}>
           <div style={{ textAlign: 'left' }}>
             <div style={{ fontFamily: "'Bebas Neue'", fontSize: 'clamp(22px, 4vw, 32px)', letterSpacing: '3px', lineHeight: 1, marginBottom: '6px' }}>READY TO OWN YOUR APP?</div>
-            <p style={{ color: '#555', fontSize: '13px', lineHeight: 1.5 }}>$500 deposit. Live in days. You own everything.</p>
+            <p style={{ color: '#555', fontSize: '13px', lineHeight: 1.5 }}>$1,000 deposit. Live in days. You own everything.</p>
           </div>
           <a href="mailto:moebuildsco@gmail.com?subject=I want to build an app" style={{ background: '#D4AF37', color: '#0A0A0A', borderRadius: '6px', fontFamily: "'Barlow Condensed'", fontSize: '13px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', textDecoration: 'none', padding: '14px 32px', whiteSpace: 'nowrap' }}>
             Let's Build →
