@@ -10,13 +10,21 @@ import ScrollToTop from './components/ScrollToTop'
 import Nav from './components/Nav'
 import Footer from './components/Footer'
 import Portfolio from './pages/Portfolio'
-import Home from './pages/Home'
 import Barbers from './pages/Barbers'
 import Services from './pages/Services'
 import Book from './pages/Book'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Profile from './pages/Profile'
+
+// ── Barber demo (rebuilt, namespaced) ────────────────────────
+import BarberNav      from './components/barber/BarberNav'
+import BarberFooter   from './components/barber/BarberFooter'
+import BarberHome     from './pages/barber/BarberHome'
+import BarberLogin    from './pages/barber/BarberLogin'
+import BarberRegister from './pages/barber/BarberRegister'
+import BarberProfile  from './pages/barber/BarberProfile'
+import BarberAdmin    from './pages/barber/BarberAdmin'
 
 // ── Food truck demo (new) ────────────────────────────────────
 import FoodTruckNav     from './components/foodtruck/FoodTruckNav'
@@ -54,6 +62,17 @@ function Shell({ children }) {
   )
 }
 
+// ── Barber shell (rebuilt) ───────────────────────────────────
+function BarberShell({ children }) {
+  return (
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#0a0a0a' }}>
+      <BarberNav />
+      <main style={{ flex: 1 }}>{children}</main>
+      <BarberFooter />
+    </div>
+  )
+}
+
 // ── Food truck shell (new) ───────────────────────────────────
 function FoodTruckShell({ children }) {
   return (
@@ -81,6 +100,21 @@ function Protected({ children }) {
   const { user, loading } = useAuthStore()
   if (loading) return null
   return user ? children : <Navigate to="/login" replace />
+}
+
+// ── Barber protected (rebuilt) ───────────────────────────────
+function BarberProtected({ children }) {
+  const { user, loading } = useAuthStore()
+  if (loading) return null
+  return user ? children : <Navigate to="/barber/login" replace />
+}
+
+function BarberAdminProtected({ children }) {
+  const { user, profile, loading } = useAuthStore()
+  if (loading) return null
+  if (!user) return <Navigate to="/barber/login" replace />
+  if (profile && profile.role !== 'admin') return <Navigate to="/barber" replace />
+  return children
 }
 
 // ── Food truck protected (new) ───────────────────────────────
@@ -149,8 +183,18 @@ export default function App() {
         {/* ── Portfolio (unchanged) ──────────────────── */}
         <Route path="/" element={<Portfolio />} />
 
-        {/* ── Barber demo (unchanged) ────────────────── */}
-        <Route path="/barber"   element={<Shell><Home /></Shell>} />
+        {/* ── Barber demo (rebuilt — premium showcase) ── */}
+        <Route path="/barber"          element={<BarberShell><BarberHome /></BarberShell>} />
+        <Route path="/barber/login"    element={<BarberShell><BarberLogin /></BarberShell>} />
+        <Route path="/barber/register" element={<BarberShell><BarberRegister /></BarberShell>} />
+        <Route path="/barber/profile"  element={
+          <BarberProtected><BarberShell><BarberProfile /></BarberShell></BarberProtected>
+        } />
+        <Route path="/barber/admin"    element={
+          <BarberAdminProtected><BarberShell><BarberAdmin /></BarberShell></BarberAdminProtected>
+        } />
+
+        {/* ── Old shared barber routes (legacy/orphaned — kept harmless, no longer linked from new demo) ── */}
         <Route path="/barbers"  element={<Shell><Barbers /></Shell>} />
         <Route path="/services" element={<Shell><Services /></Shell>} />
         <Route path="/book"     element={<Shell><Book /></Shell>} />
