@@ -283,7 +283,7 @@ export default function BarberHome() {
       <section id="home" style={{
         position: 'relative', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
         textAlign: 'center', overflow: 'hidden',
-        backgroundImage: `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.75)), url(${C.heroImage})`,
+        backgroundImage: `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.72)), url(${C.heroImage})`,
         backgroundSize: 'cover', backgroundPosition: 'center',
       }}>
         <div style={{
