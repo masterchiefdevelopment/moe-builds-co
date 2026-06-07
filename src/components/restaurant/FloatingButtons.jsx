@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { RESTAURANT_CONFIG as C } from '../../pages/restaurant/config'
+import { scrollToSection } from './scrollUtils'
 
 export default function FloatingButtons({ onOpenAddOns }) {
   const [pastHero, setPastHero] = useState(false)
@@ -29,7 +30,7 @@ export default function FloatingButtons({ onOpenAddOns }) {
         onMouseLeave={e => e.currentTarget.style.transform = pastHero ? 'translateY(0) scale(1)' : 'translateY(12px) scale(0.94)'}
       >See Add-Ons ✦</button>
 
-      <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Back to top" style={{
+      <button type="button" onClick={() => scrollToSection('home')} aria-label="Back to top" style={{
         position: 'fixed', right: 20, bottom: pastHero ? 76 : 20, zIndex: 89,
         width: 44, height: 44, borderRadius: '50%', background: C.bgCard, color: C.accentColor,
         border: `1px solid ${C.borderSubtle}`, fontSize: 18, cursor: 'pointer',

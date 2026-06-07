@@ -20,8 +20,11 @@ const ADDONS = [
 export default function AddOnsDrawer({ open, onClose }) {
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : ''
-    return () => { document.body.style.overflow = '' }
-  }, [open])
+    if (!open) return
+    const onKey = (e) => { if (e.key === 'Escape') onClose() }
+    document.addEventListener('keydown', onKey)
+    return () => { document.body.style.overflow = ''; document.removeEventListener('keydown', onKey) }
+  }, [open, onClose])
 
   return (
     <>

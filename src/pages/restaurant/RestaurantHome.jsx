@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { RESTAURANT_CONFIG as C } from './config'
 import { useAuthStore } from '../../store/authStore'
 import { createOrder, getCustomerOrders, getProfile, submitContact } from '../../lib/supabase'
 import AddOnsDrawer from '../../components/restaurant/AddOnsDrawer'
 import FloatingButtons from '../../components/restaurant/FloatingButtons'
+import AuthModal from '../../components/restaurant/AuthModal'
+import { scrollToSection } from '../../components/restaurant/scrollUtils'
 import toast from 'react-hot-toast'
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 const CATEGORIES = Object.keys(C.menu)
 const STAMPS = 10
@@ -36,9 +39,47 @@ const sectionTitle = (text) => (
   }}>{text}</h2>
 )
 
+function Lightbox({ images, index, onClose, onChange }) {
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'Escape') onClose()
+      if (e.key === 'ArrowRight') onChange((index + 1) % images.length)
+      if (e.key === 'ArrowLeft') onChange((index - 1 + images.length) % images.length)
+    }
+    document.addEventListener('keydown', onKey)
+    document.body.style.overflow = 'hidden'
+    return () => { document.removeEventListener('keydown', onKey); document.body.style.overflow = '' }
+  }, [index, images.length, onClose, onChange])
+
+  const navBtnStyle = {
+    background: 'rgba(255,255,255,0.08)', border: `1px solid ${C.borderSubtle}`, color: '#fff', borderRadius: '50%',
+    width: 44, height: 44, fontSize: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+  }
+
+  return (
+    <div onClick={onClose} style={{
+      position: 'fixed', inset: 0, zIndex: 300, background: 'rgba(0,0,0,0.92)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20,
+    }}>
+      <button type="button" onClick={onClose} aria-label="Close" style={{
+        position: 'absolute', top: 20, right: 20, ...navBtnStyle,
+      }}>✕</button>
+      <button type="button" onClick={e => { e.stopPropagation(); onChange((index - 1 + images.length) % images.length) }} aria-label="Previous" style={{
+        position: 'absolute', left: 20, top: '50%', transform: 'translateY(-50%)', ...navBtnStyle,
+      }}>←</button>
+      <img src={images[index]} alt="" onClick={e => e.stopPropagation()} style={{ maxWidth: '90vw', maxHeight: '85vh', borderRadius: 12, objectFit: 'contain' }} />
+      <button type="button" onClick={e => { e.stopPropagation(); onChange((index + 1) % images.length) }} aria-label="Next" style={{
+        position: 'absolute', right: 20, top: '50%', transform: 'translateY(-50%)', ...navBtnStyle,
+      }}>→</button>
+    </div>
+  )
+}
+
 export default function RestaurantHome() {
   const { user, profile, setProfile } = useAuthStore()
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [authOpen, setAuthOpen] = useState(false)
+  const [lightboxIndex, setLightboxIndex] = useState(null)
   const [heroVisible, setHeroVisible] = useState(false)
 
   useEffect(() => { const t = setTimeout(() => setHeroVisible(true), 60); return () => clearTimeout(t) }, [])
@@ -95,7 +136,7 @@ export default function RestaurantHome() {
     setSubmitting(false)
   }
 
-  const resetOrder = () => { setConfirmation(null); setStep(1); setCartOpen(false) }
+  const resetOrder = () => { setConfirmation(null); setStep(1); setCartOpen(false); scrollToSection('menu') }
 
   // ── Loyalty ──────────────────────────────────────
   const [orderCount, setOrderCount] = useState(0)
@@ -111,11 +152,29 @@ export default function RestaurantHome() {
 
   // ── Contact form ─────────────────────────────────
   const [contact, setContact] = useState({ name: '', email: '', message: '' })
+  const [contactErrors, setContactErrors] = useState({})
   const [contactSent, setContactSent] = useState(false)
   const [contactSubmitting, setContactSubmitting] = useState(false)
+
+  const setContactField = (k, v) => {
+    setContact(c => ({ ...c, [k]: v }))
+    setContactErrors(errs => ({ ...errs, [k]: undefined }))
+  }
+
+  const validateContact = () => {
+    const errs = {}
+    if (!contact.name.trim()) errs.name = 'Name is required'
+    if (!contact.email.trim()) errs.email = 'Email is required'
+    else if (!EMAIL_RE.test(contact.email.trim())) errs.email = 'Enter a valid email address'
+    if (!contact.message.trim()) errs.message = 'Message is required'
+    return errs
+  }
+
   const submitContactForm = async (e) => {
     e.preventDefault()
-    if (!contact.name || !contact.email || !contact.message) return toast.error('Fill in all fields')
+    const errs = validateContact()
+    setContactErrors(errs)
+    if (Object.keys(errs).length > 0) return
     setContactSubmitting(true)
     try {
       await submitContact({ restaurant_id: C.restaurantId, ...contact })
@@ -124,6 +183,10 @@ export default function RestaurantHome() {
     } catch { toast.error('Something went wrong — try again later') }
     setContactSubmitting(false)
   }
+
+  const fieldStyle = (key) => ({
+    borderColor: contactErrors[key] ? '#ef4444' : C.borderSubtle,
+  })
 
   const todayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][new Date().getDay()]
   const filteredItems = useMemo(() => C.menu[activeCategory] || [], [activeCategory])
@@ -156,15 +219,15 @@ export default function RestaurantHome() {
             {C.tagline}
           </p>
           <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap', marginTop: 44 }}>
-            <a href="#order" className="rg-btn-gold">Order Now</a>
-            <a href="#menu" className="rg-btn-outline">View Menu</a>
+            <button type="button" onClick={() => scrollToSection('order')} className="rg-btn-gold">Order Now</button>
+            <button type="button" onClick={() => scrollToSection('menu')} className="rg-btn-outline">View Menu</button>
           </div>
         </div>
 
-        <a href="#menu" aria-label="Scroll down" style={{
-          position: 'absolute', bottom: 28, left: '50%', transform: 'translateX(-50%)',
-          color: C.accentColor, fontSize: 26, textDecoration: 'none', animation: 'rgBounce 2s infinite',
-        }}>↓</a>
+        <button type="button" onClick={() => scrollToSection('menu')} aria-label="Scroll down" style={{
+          position: 'absolute', bottom: 28, left: '50%', transform: 'translateX(-50%)', background: 'none', border: 'none',
+          color: C.accentColor, fontSize: 26, cursor: 'pointer', animation: 'rgBounce 2s infinite',
+        }}>↓</button>
       </section>
 
       {/* ───────── MENU ───────── */}
@@ -351,7 +414,7 @@ export default function RestaurantHome() {
             </div>
             <div style={{ fontSize: 13, color: C.textSecondary, marginBottom: 8 }}>{cart.reduce((s, c) => s + c.qty, 0)} items</div>
             <div style={{ fontWeight: 700, color: C.accentColor, marginBottom: 12 }}>${subtotal.toFixed(2)}</div>
-            <a href="#order" onClick={() => setCartOpen(false)} className="rg-btn-gold" style={{ display: 'block', textAlign: 'center' }}>Checkout →</a>
+            <button type="button" onClick={() => { setCartOpen(false); goToStep(2) }} className="rg-btn-gold" style={{ display: 'block', width: '100%', textAlign: 'center' }}>Checkout →</button>
           </div>
         )}
         {!confirmation && cart.length > 0 && !cartOpen && (
@@ -380,12 +443,13 @@ export default function RestaurantHome() {
                   border: `2px solid ${i < earnedStamps ? C.accentColor : '#3a3a3a'}`,
                   background: i < earnedStamps ? `${C.accentColor}22` : 'transparent',
                   color: i < earnedStamps ? C.accentColor : '#444', fontSize: 18,
+                  animation: i < earnedStamps ? `rgPunchPop 0.4s ease backwards ${i * 0.1}s` : 'none',
                 }}>{i < earnedStamps ? '★' : '☆'}</div>
               ))}
             </div>
             <p style={{ color: C.textSecondary, fontSize: 14, marginBottom: user ? 0 : 14 }}>10 punches = 1 free meal</p>
             {!user && (
-              <Link to="/restaurant/register" className="rg-btn-gold" style={{ display: 'inline-block', marginTop: 6 }}>Join to Start Earning</Link>
+              <button type="button" onClick={() => setAuthOpen(true)} className="rg-btn-gold" style={{ marginTop: 6 }}>Join to Start Earning</button>
             )}
             {user && (
               <p style={{ fontSize: 13, color: C.textPrimary, marginTop: 8 }}>
@@ -403,8 +467,8 @@ export default function RestaurantHome() {
           {sectionTitle('Our Food')}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
             {C.galleryImages.map((src, i) => (
-              <div key={i} className="rg-gallery-item" style={{
-                borderRadius: 12, overflow: 'hidden', border: `1px solid ${C.borderSubtle}`, aspectRatio: '4/3', position: 'relative',
+              <div key={i} className="rg-gallery-item" onClick={() => setLightboxIndex(i)} style={{
+                borderRadius: 12, overflow: 'hidden', border: `1px solid ${C.borderSubtle}`, aspectRatio: '4/3', position: 'relative', cursor: 'pointer',
               }}>
                 <img src={src} alt={`${C.name} dish ${i + 1}`} loading="lazy"
                   style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.35s' }} />
@@ -460,13 +524,22 @@ export default function RestaurantHome() {
           <div style={{ marginTop: 56, maxWidth: 560, marginLeft: 'auto', marginRight: 'auto' }}>
             <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: 22, marginBottom: 16, textAlign: 'center' }}>Send Us a Message</h3>
             {contactSent ? (
-              <p style={{ color: C.accentColor, fontSize: 14, textAlign: 'center' }}>Thanks — we received your message and will reach out soon.</p>
+              <p style={{ color: C.accentColor, fontSize: 15, textAlign: 'center', animation: 'rgFadeIn 0.4s ease' }}>Message sent! We'll be in touch soon.</p>
             ) : (
-              <form onSubmit={submitContactForm} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                <input className="rg-input" placeholder="Name" value={contact.name} onChange={e => setContact(c => ({ ...c, name: e.target.value }))} />
-                <input className="rg-input" type="email" placeholder="Email" value={contact.email} onChange={e => setContact(c => ({ ...c, email: e.target.value }))} />
-                <textarea className="rg-input" rows={4} placeholder="Message" value={contact.message} onChange={e => setContact(c => ({ ...c, message: e.target.value }))} />
-                <button type="submit" disabled={contactSubmitting} className="rg-btn-gold">{contactSubmitting ? 'Sending...' : 'Send Message'}</button>
+              <form onSubmit={submitContactForm} style={{ display: 'flex', flexDirection: 'column', gap: 4, animation: 'rgFadeIn 0.4s ease' }}>
+                <div>
+                  <input className="rg-input" placeholder="Name" value={contact.name} onChange={e => setContactField('name', e.target.value)} style={fieldStyle('name')} />
+                  {contactErrors.name && <span style={{ color: '#ef4444', fontSize: 12, marginTop: 4, display: 'block' }}>{contactErrors.name}</span>}
+                </div>
+                <div>
+                  <input className="rg-input" type="email" placeholder="Email" value={contact.email} onChange={e => setContactField('email', e.target.value)} style={fieldStyle('email')} />
+                  {contactErrors.email && <span style={{ color: '#ef4444', fontSize: 12, marginTop: 4, display: 'block' }}>{contactErrors.email}</span>}
+                </div>
+                <div>
+                  <textarea className="rg-input" rows={4} placeholder="Message" value={contact.message} onChange={e => setContactField('message', e.target.value)} style={fieldStyle('message')} />
+                  {contactErrors.message && <span style={{ color: '#ef4444', fontSize: 12, marginTop: 4, display: 'block' }}>{contactErrors.message}</span>}
+                </div>
+                <button type="submit" disabled={contactSubmitting} className="rg-btn-gold" style={{ marginTop: 10 }}>{contactSubmitting ? 'Sending...' : 'Send Message'}</button>
               </form>
             )}
           </div>
@@ -475,9 +548,21 @@ export default function RestaurantHome() {
 
       <AddOnsDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
       <FloatingButtons onOpenAddOns={() => setDrawerOpen(true)} />
+      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
+
+      {lightboxIndex !== null && (
+        <Lightbox
+          images={C.galleryImages}
+          index={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+          onChange={setLightboxIndex}
+        />
+      )}
 
       <style>{`
         @keyframes rgBounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(8px); } }
+        @keyframes rgPunchPop { 0% { transform: scale(0.4); opacity: 0; } 70% { transform: scale(1.15); opacity: 1; } 100% { transform: scale(1); } }
+        @keyframes rgFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
         .rg-btn-gold {
           display: inline-block; background: ${C.accentColor}; color: #0A0A0A; border: none; border-radius: 8px;
           font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 1px;
