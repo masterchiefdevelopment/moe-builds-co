@@ -30,3 +30,31 @@ export const getCustomerBookings = (customerId) =>
     .select('*, barbers(name), services(name, price_cents)')
     .eq('customer_id', customerId)
     .order('booked_at', { ascending: false })
+
+// ── Restaurant demo helpers ──────────────────────────────────
+export const getProfile = (userId) =>
+  supabase.from('profiles').select('*').eq('id', userId).single()
+
+export const createOrder = (order) =>
+  supabase.from('orders').insert(order).select().single()
+
+export const getCustomerOrders = (restaurantId, userId) =>
+  supabase
+    .from('orders')
+    .select('*')
+    .eq('restaurant_id', restaurantId)
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+
+export const getRestaurantOrders = (restaurantId) =>
+  supabase
+    .from('orders')
+    .select('*')
+    .eq('restaurant_id', restaurantId)
+    .order('created_at', { ascending: false })
+
+export const updateOrderStatus = (orderId, status) =>
+  supabase.from('orders').update({ status }).eq('id', orderId)
+
+export const submitContact = (submission) =>
+  supabase.from('contact_submissions').insert(submission)

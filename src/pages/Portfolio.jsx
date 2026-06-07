@@ -19,6 +19,15 @@ const DEMOS = [
     link: '/foodtruck',
     status: 'Live Demo',
   },
+  {
+    id: 3,
+    industry: 'Restaurant',
+    name: 'Jalisco Grill Mexican Restaurant',
+    desc: 'Full ordering platform with online ordering, customer accounts, loyalty punch card, and an admin dashboard.',
+    features: ['Online Ordering', 'Customer Accounts', 'Loyalty Punch Card', 'Admin Dashboard'],
+    link: '/restaurant',
+    status: 'Live Demo',
+  },
 ]
 
 const PROBLEMS = [

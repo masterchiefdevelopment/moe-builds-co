@@ -28,6 +28,19 @@ import FoodTruckLogin   from './pages/foodtruck/FoodTruckLogin'
 import FoodTruckRegister from './pages/foodtruck/FoodTruckRegister'
 import FoodTruckProfile from './pages/foodtruck/FoodTruckProfile'
 
+// ── Restaurant demo (new) ────────────────────────────────────
+import RestaurantNav      from './components/restaurant/RestaurantNav'
+import RestaurantFooter   from './components/restaurant/RestaurantFooter'
+import RestaurantHome     from './pages/restaurant/RestaurantHome'
+import RestaurantMenu     from './pages/restaurant/RestaurantMenu'
+import RestaurantOrder    from './pages/restaurant/RestaurantOrder'
+import RestaurantGallery  from './pages/restaurant/RestaurantGallery'
+import RestaurantLocation from './pages/restaurant/RestaurantLocation'
+import RestaurantLogin    from './pages/restaurant/RestaurantLogin'
+import RestaurantRegister from './pages/restaurant/RestaurantRegister'
+import RestaurantProfile  from './pages/restaurant/RestaurantProfile'
+import RestaurantAdmin    from './pages/restaurant/RestaurantAdmin'
+
 // ── Barber shell (unchanged) ─────────────────────────────────
 function Shell({ children }) {
   return (
@@ -50,6 +63,17 @@ function FoodTruckShell({ children }) {
   )
 }
 
+// ── Restaurant shell (new) ───────────────────────────────────
+function RestaurantShell({ children }) {
+  return (
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#0A0A0A' }}>
+      <RestaurantNav />
+      <main style={{ flex: 1, paddingTop: '64px' }}>{children}</main>
+      <RestaurantFooter />
+    </div>
+  )
+}
+
 // ── Barber protected (unchanged) ─────────────────────────────
 function Protected({ children }) {
   const { user, loading } = useAuthStore()
@@ -62,6 +86,21 @@ function FoodTruckProtected({ children }) {
   const { user, loading } = useAuthStore()
   if (loading) return null
   return user ? children : <Navigate to="/foodtruck/login" replace />
+}
+
+// ── Restaurant protected (new) ───────────────────────────────
+function RestaurantProtected({ children }) {
+  const { user, loading } = useAuthStore()
+  if (loading) return null
+  return user ? children : <Navigate to="/restaurant/login" replace />
+}
+
+function RestaurantAdminProtected({ children }) {
+  const { user, profile, loading } = useAuthStore()
+  if (loading) return null
+  if (!user) return <Navigate to="/restaurant/login" replace />
+  if (profile && profile.role !== 'admin') return <Navigate to="/restaurant" replace />
+  return children
 }
 
 // ── App ──────────────────────────────────────────────────────
@@ -121,6 +160,21 @@ export default function App() {
           <FoodTruckProtected>
             <FoodTruckShell><FoodTruckProfile /></FoodTruckShell>
           </FoodTruckProtected>
+        } />
+
+        {/* ── Restaurant demo (new) ──────────────────── */}
+        <Route path="/restaurant"          element={<RestaurantShell><RestaurantHome /></RestaurantShell>} />
+        <Route path="/restaurant/menu"     element={<RestaurantShell><RestaurantMenu /></RestaurantShell>} />
+        <Route path="/restaurant/order"    element={<RestaurantShell><RestaurantOrder /></RestaurantShell>} />
+        <Route path="/restaurant/gallery"  element={<RestaurantShell><RestaurantGallery /></RestaurantShell>} />
+        <Route path="/restaurant/location" element={<RestaurantShell><RestaurantLocation /></RestaurantShell>} />
+        <Route path="/restaurant/login"    element={<RestaurantShell><RestaurantLogin /></RestaurantShell>} />
+        <Route path="/restaurant/register" element={<RestaurantShell><RestaurantRegister /></RestaurantShell>} />
+        <Route path="/restaurant/profile"  element={
+          <RestaurantProtected><RestaurantShell><RestaurantProfile /></RestaurantShell></RestaurantProtected>
+        } />
+        <Route path="/restaurant/admin"    element={
+          <RestaurantAdminProtected><RestaurantShell><RestaurantAdmin /></RestaurantShell></RestaurantAdminProtected>
         } />
 
         {/* ── Fallback (unchanged) ───────────────────── */}
