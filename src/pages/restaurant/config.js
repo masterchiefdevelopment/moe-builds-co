@@ -1,0 +1,62 @@
+// Single source of truth for this restaurant client.
+// Swap these values to re-skin the entire demo for a different restaurant.
+export const RESTAURANT_CONFIG = {
+  restaurantId: 'jalisco-grill',
+  name: 'Jalisco Grill',
+  fullName: 'Jalisco Grill Mexican Restaurant',
+  tagline: 'Authentic Mexican flavors, made fresh daily',
+  logoText: 'JG',
+  primaryColor: '#8B0000',
+  accentColor: '#D4AF37',
+  address: '123 Demo St, San Antonio, TX 78201',
+  phone: '(210) 555-0100',
+  email: 'hello@jaliscogrill.demo',
+  hours: [
+    { day: 'Monday',    time: '11:00 AM – 9:00 PM' },
+    { day: 'Tuesday',   time: '11:00 AM – 9:00 PM' },
+    { day: 'Wednesday', time: '11:00 AM – 9:00 PM' },
+    { day: 'Thursday',  time: '11:00 AM – 9:00 PM' },
+    { day: 'Friday',    time: '11:00 AM – 10:00 PM' },
+    { day: 'Saturday',  time: '11:00 AM – 10:00 PM' },
+    { day: 'Sunday',    time: '12:00 PM – 8:00 PM' },
+  ],
+  googleMapsUrl: 'https://maps.google.com/?q=123+Demo+St+San+Antonio+TX+78201',
+  appleMapsUrl: 'https://maps.apple.com/?address=123+Demo+St,+San+Antonio,+TX+78201',
+  galleryImages: [
+    'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=600&q=80',
+    'https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?w=600&q=80',
+    'https://images.unsplash.com/photo-1599974579688-8dbdd335c77f?w=600&q=80',
+    'https://images.unsplash.com/photo-1611250188496-e966043a0629?w=600&q=80',
+    'https://images.unsplash.com/photo-1564767655658-4e6b365884ff?w=600&q=80',
+    'https://images.unsplash.com/photo-1547573854-74d2a71d0826?w=600&q=80',
+  ],
+  menu: {
+    Appetizers: [
+      { name: 'Queso Fundido', desc: 'Melted cheese, chorizo, warm tortillas', price: 8.50 },
+      { name: 'Guacamole & Chips', desc: 'Fresh avocado, lime, cilantro', price: 7.00 },
+      { name: 'Street Corn Elote', desc: 'Grilled corn, cotija, chili lime crema', price: 6.50 },
+    ],
+    Tacos: [
+      { name: 'Carne Asada Taco', desc: 'Grilled steak, onion, cilantro', price: 4.25 },
+      { name: 'Al Pastor Taco', desc: 'Marinated pork, pineapple, salsa verde', price: 4.00 },
+      { name: 'Baja Fish Taco', desc: 'Crispy fish, cabbage slaw, chipotle aioli', price: 4.50 },
+      { name: 'Veggie Taco', desc: 'Grilled nopales, pico de gallo, queso fresco', price: 3.75 },
+    ],
+    Entrees: [
+      { name: 'Enchiladas Rojas', desc: 'Three rolled tortillas, red sauce, rice & beans', price: 13.95 },
+      { name: 'Carnitas Plate', desc: 'Slow-braised pork, rice, beans, tortillas', price: 15.50 },
+      { name: 'Chile Relleno', desc: 'Roasted poblano, cheese, tomato sauce', price: 12.95 },
+      { name: 'Fajitas Mixtas', desc: 'Steak & chicken, peppers, onions, tortillas', price: 17.95 },
+    ],
+    Drinks: [
+      { name: 'Horchata', desc: 'House-made rice & cinnamon drink', price: 3.50 },
+      { name: 'Jamaica Agua Fresca', desc: 'Hibiscus, lightly sweetened', price: 3.50 },
+      { name: 'Mexican Coke', desc: 'Cane sugar, glass bottle', price: 3.00 },
+    ],
+    Desserts: [
+      { name: 'Churros', desc: 'Cinnamon sugar, chocolate dip', price: 5.50 },
+      { name: 'Tres Leches Cake', desc: 'Soaked sponge cake, whipped cream', price: 6.00 },
+      { name: 'Fried Ice Cream', desc: 'Crispy shell, honey drizzle', price: 6.50 },
+    ],
+  },
+}
