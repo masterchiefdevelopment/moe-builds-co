@@ -28,6 +28,7 @@ import FoodTruckLocation from './pages/foodtruck/FoodTruckLocation'
 import FoodTruckLogin   from './pages/foodtruck/FoodTruckLogin'
 import FoodTruckRegister from './pages/foodtruck/FoodTruckRegister'
 import FoodTruckProfile from './pages/foodtruck/FoodTruckProfile'
+import FoodTruckAdmin   from './pages/foodtruck/FoodTruckAdmin'
 
 // ── Restaurant demo (new) ────────────────────────────────────
 import RestaurantNav      from './components/restaurant/RestaurantNav'
@@ -96,6 +97,14 @@ function RestaurantProtected({ children }) {
   return user ? children : <Navigate to="/restaurant/login" replace />
 }
 
+function FoodTruckAdminProtected({ children }) {
+  const { user, profile, loading } = useAuthStore()
+  if (loading) return null
+  if (!user) return <Navigate to="/foodtruck/login" replace />
+  if (profile && profile.role !== 'admin') return <Navigate to="/foodtruck" replace />
+  return children
+}
+
 function RestaurantAdminProtected({ children }) {
   const { user, profile, loading } = useAuthStore()
   if (loading) return null
@@ -162,6 +171,9 @@ export default function App() {
           <FoodTruckProtected>
             <FoodTruckShell><FoodTruckProfile /></FoodTruckShell>
           </FoodTruckProtected>
+        } />
+        <Route path="/foodtruck/admin"    element={
+          <FoodTruckAdminProtected><FoodTruckShell><FoodTruckAdmin /></FoodTruckShell></FoodTruckAdminProtected>
         } />
 
         {/* ── Restaurant demo (new) ──────────────────── */}

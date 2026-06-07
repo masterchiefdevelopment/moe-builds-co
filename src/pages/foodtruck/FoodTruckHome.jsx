@@ -1,713 +1,664 @@
-// src/pages/foodtruck/FoodTruckHome.jsx
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useMemo, useState } from 'react'
+import { TRUCK_CONFIG as C } from './config'
+import { useAuthStore } from '../../store/authStore'
+import { createOrder, getCustomerOrders, getProfile, submitContact } from '../../lib/supabase'
+import AddOnsDrawer from '../../components/foodtruck/AddOnsDrawer'
+import FloatingButtons from '../../components/foodtruck/FloatingButtons'
+import AuthModal from '../../components/foodtruck/AuthModal'
+import { scrollToSection } from '../../components/foodtruck/scrollUtils'
+import toast from 'react-hot-toast'
 
-const HERO_PHOTO = 'https://images.unsplash.com/photo-1565123409695-7b5ef63a2efb?w=1600&q=80'
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const CATEGORIES = Object.keys(C.menu)
+const STAMPS = 10
+const DAY_KEYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+const DAY_NAMES = { Sun: 'Sunday', Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday' }
 
-const SWATCHES = ['#FF6B2B', '#E63946', '#F4A261', '#2A9D8F', '#9B5DE5', '#F72585']
-
-const DEFAULT_PHOTOS = {
-  'Smash Burger': 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80',
-  'Birria Tacos': 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=400&q=80',
-  'Loaded Fries': 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=400&q=80',
-  'Agua Fresca':  'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400&q=80',
+function parseHourToken(tok) {
+  // e.g. "11am" "3pm" "12pm"
+  const m = tok.trim().match(/^(\d{1,2})(am|pm)$/i)
+  if (!m) return null
+  let h = parseInt(m[1], 10)
+  const mer = m[2].toLowerCase()
+  if (mer === 'pm' && h !== 12) h += 12
+  if (mer === 'am' && h === 12) h = 0
+  return h
 }
 
-const DEFAULT_STATE = {
-  truckName: "Moe's Food Truck",
-  color: '#FF6B2B',
-  items: [
-    { name: 'Smash Burger',  desc: 'Double smash, american cheese, secret sauce', price: '12' },
-    { name: 'Birria Tacos',  desc: 'Consommé dip, oaxaca cheese, cilantro onion', price: '14' },
-    { name: 'Loaded Fries',  desc: 'Cheese sauce, jalapeños, crispy bacon crumble', price: '8' },
-    { name: 'Agua Fresca',   desc: 'Rotating seasonal flavors, made fresh daily',  price: '4' },
-  ],
+function buildTimeSlotsFromHours(hoursStr) {
+  if (!hoursStr || /closed/i.test(hoursStr)) return []
+  const [startTok, endTok] = hoursStr.split(/[–-]/).map(s => s.trim())
+  const start = parseHourToken(startTok)
+  const end = parseHourToken(endTok)
+  if (start == null || end == null) return []
+  const slots = []
+  for (let h = start; h < end; h++) {
+    for (const m of [0, 30]) {
+      const hour12 = h % 12 === 0 ? 12 : h % 12
+      slots.push(`${hour12}:${m === 0 ? '00' : '30'} ${h >= 12 ? 'PM' : 'AM'}`)
+    }
+  }
+  return slots
 }
 
-const PERKS = [
-  { icon: '🔥', title: 'Made Fresh',    desc: 'Every order cooked to order. No heat lamps, no shortcuts, ever.' },
-  { icon: '📍', title: 'Find Us Daily', desc: 'We move around SA. Check our location tab before you roll out.' },
-  { icon: '⏭️', title: 'Skip the Line', desc: 'Order ahead online and pick up hot and ready — zero wait.' },
-  { icon: '⭐', title: 'Earn Rewards',  desc: '10 orders earns you a free meal. No app or card required.' },
-]
+const sectionLabel = (text) => (
+  <span style={{
+    display: 'inline-block', fontFamily: "'Inter', sans-serif", fontSize: 12, letterSpacing: 3,
+    textTransform: 'uppercase', fontWeight: 600, color: C.accentAmber, marginBottom: 10,
+  }}>{text}</span>
+)
 
-export default function FoodTruckHome() {
-  const [demo, setDemo]     = useState(DEFAULT_STATE)
-  const [photos, setPhotos]     = useState(DEFAULT_PHOTOS)
-  const [loading, setLoading]   = useState(false)
-  const [panelOpen, setPanelOpen] = useState(false)
+const sectionTitle = (text) => (
+  <h2 style={{
+    fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(34px, 6vw, 54px)', color: C.textPrimary,
+    letterSpacing: 1.5, marginBottom: 16,
+  }}>{text}</h2>
+)
 
-  const [draft, setDraft] = useState({
-    truckName: DEFAULT_STATE.truckName,
-    color: DEFAULT_STATE.color,
-    items: DEFAULT_STATE.items.map(i => ({ name: i.name, price: i.price })),
-  })
+function Lightbox({ images, index, onClose, onChange }) {
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'Escape') onClose()
+      if (e.key === 'ArrowRight') onChange((index + 1) % images.length)
+      if (e.key === 'ArrowLeft') onChange((index - 1 + images.length) % images.length)
+    }
+    document.addEventListener('keydown', onKey)
+    document.body.style.overflow = 'hidden'
+    return () => { document.removeEventListener('keydown', onKey); document.body.style.overflow = '' }
+  }, [index, images.length, onClose, onChange])
 
-  const handleBuildDemo = () => {
-    setLoading(true)
-    const newItems = draft.items.map((di, i) => ({
-      name:  di.name  || DEFAULT_STATE.items[i].name,
-      desc:  DEFAULT_STATE.items[i].desc,
-      price: di.price || DEFAULT_STATE.items[i].price,
-    }))
-    // Remap photos: keep static URL for unchanged names, use first default for new names
-    const defaultUrls = Object.values(DEFAULT_PHOTOS)
-    const newPhotos = {}
-    newItems.forEach((item, i) => {
-      newPhotos[item.name] = DEFAULT_PHOTOS[item.name] || defaultUrls[i] || defaultUrls[0]
-    })
-    setPhotos(newPhotos)
-    setDemo({
-      truckName: draft.truckName || DEFAULT_STATE.truckName,
-      color:     draft.color,
-      items:     newItems,
-    })
-    setLoading(false)
+  const navBtnStyle = {
+    background: 'rgba(255,255,255,0.08)', border: `1px solid ${C.borderSubtle}`, color: '#fff', borderRadius: '50%',
+    width: 44, height: 44, fontSize: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
   }
 
-  const c = demo.color
+  return (
+    <div onClick={onClose} style={{
+      position: 'fixed', inset: 0, zIndex: 300, background: 'rgba(0,0,0,0.92)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20,
+    }}>
+      <button type="button" onClick={onClose} aria-label="Close" style={{ position: 'absolute', top: 20, right: 20, ...navBtnStyle }}>✕</button>
+      <button type="button" onClick={e => { e.stopPropagation(); onChange((index - 1 + images.length) % images.length) }} aria-label="Previous" style={{ position: 'absolute', left: 20, top: '50%', transform: 'translateY(-50%)', ...navBtnStyle }}>←</button>
+      <img src={images[index]} alt="" onClick={e => e.stopPropagation()} style={{ maxWidth: '90vw', maxHeight: '85vh', borderRadius: 12, objectFit: 'contain' }} />
+      <button type="button" onClick={e => { e.stopPropagation(); onChange((index + 1) % images.length) }} aria-label="Next" style={{ position: 'absolute', right: 20, top: '50%', transform: 'translateY(-50%)', ...navBtnStyle }}>→</button>
+    </div>
+  )
+}
+
+export default function FoodTruckHome() {
+  const { user, profile, setProfile } = useAuthStore()
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const [authOpen, setAuthOpen] = useState(false)
+  const [lightboxIndex, setLightboxIndex] = useState(null)
+  const [heroVisible, setHeroVisible] = useState(false)
+
+  useEffect(() => { const t = setTimeout(() => setHeroVisible(true), 60); return () => clearTimeout(t) }, [])
+
+  const [activeCategory, setActiveCategory] = useState('All')
+  const filteredItems = useMemo(() => {
+    if (activeCategory === 'All') return CATEGORIES.flatMap(cat => C.menu[cat])
+    return C.menu[activeCategory] || []
+  }, [activeCategory])
+
+  // ── Order / cart state ───────────────────────────
+  const [cart, setCart] = useState([])
+  const [step, setStep] = useState(1)
+  const [pickupTime, setPickupTime] = useState('')
+  const [form, setForm] = useState({ name: '', phone: '' })
+  const [confirmation, setConfirmation] = useState(null)
+  const [submitting, setSubmitting] = useState(false)
+  const [cartOpen, setCartOpen] = useState(false)
+
+  const todayKey = DAY_KEYS[new Date().getDay()]
+  const todaySchedule = C.schedule[todayKey]
+  const TIME_SLOTS = useMemo(() => buildTimeSlotsFromHours(todaySchedule?.hours), [todaySchedule])
+
+  const addToCart = (item) => {
+    setCart(prev => {
+      const existing = prev.find(c => c.name === item.name)
+      if (existing) return prev.map(c => c.name === item.name ? { ...c, qty: c.qty + 1 } : c)
+      return [...prev, { ...item, qty: 1 }]
+    })
+    toast.success(`Added ${item.name}`)
+    setCartOpen(true)
+  }
+  const changeQty = (name, delta) => setCart(prev => prev
+    .map(c => c.name === name ? { ...c, qty: c.qty + delta } : c)
+    .filter(c => c.qty > 0))
+
+  const subtotal = cart.reduce((s, c) => s + c.price * c.qty, 0)
+
+  const goToStep = (n) => {
+    if (n === 2 && cart.length === 0) return toast.error('Add at least one item first')
+    if (n === 3 && !pickupTime) return toast.error('Select a pickup time')
+    setStep(n)
+  }
+
+  const handleConfirm = async () => {
+    if (!form.name || !form.phone) return toast.error('Enter your name and phone')
+    setSubmitting(true)
+    const orderNumber = `FT-${Math.floor(1000 + Math.random() * 9000)}`
+    try {
+      await createOrder({
+        restaurant_id: C.restaurantId,
+        user_id: user?.id ?? null,
+        items: cart,
+        pickup_time: pickupTime,
+        status: 'pending',
+        total: subtotal,
+      })
+    } catch { /* demo mode */ }
+    setConfirmation({ orderNumber, name: form.name, pickupTime, total: subtotal })
+    setCart([]); setStep(1); setPickupTime(''); setForm({ name: '', phone: '' })
+    setSubmitting(false)
+  }
+
+  const resetOrder = () => { setConfirmation(null); setStep(1); setCartOpen(false); scrollToSection('menu') }
+
+  // ── Loyalty ──────────────────────────────────────
+  const [orderCount, setOrderCount] = useState(0)
+  useEffect(() => {
+    if (!user) return
+    Promise.all([getCustomerOrders(C.restaurantId, user.id), profile ? Promise.resolve({ data: profile }) : getProfile(user.id)])
+      .then(([ordersRes, profileRes]) => {
+        setOrderCount(ordersRes.data?.length ?? 0)
+        if (profileRes.data) setProfile(profileRes.data)
+      }).catch(() => {})
+  }, [user])
+  const earnedStamps = Math.min(orderCount, STAMPS)
+
+  // ── Contact form ─────────────────────────────────
+  const [contact, setContact] = useState({ name: '', email: '', message: '' })
+  const [contactErrors, setContactErrors] = useState({})
+  const [contactSent, setContactSent] = useState(false)
+  const [contactSubmitting, setContactSubmitting] = useState(false)
+
+  const setContactField = (k, v) => {
+    setContact(c => ({ ...c, [k]: v }))
+    setContactErrors(errs => ({ ...errs, [k]: undefined }))
+  }
+
+  const validateContact = () => {
+    const errs = {}
+    if (!contact.name.trim()) errs.name = 'Name is required'
+    if (!contact.email.trim()) errs.email = 'Email is required'
+    else if (!EMAIL_RE.test(contact.email.trim())) errs.email = 'Enter a valid email address'
+    if (!contact.message.trim()) errs.message = 'Message is required'
+    return errs
+  }
+
+  const submitContactForm = async (e) => {
+    e.preventDefault()
+    const errs = validateContact()
+    setContactErrors(errs)
+    if (Object.keys(errs).length > 0) return
+    setContactSubmitting(true)
+    try {
+      await submitContact({ restaurant_id: C.restaurantId, ...contact })
+      setContactSent(true)
+      setContact({ name: '', email: '', message: '' })
+    } catch { toast.error('Something went wrong — try again later') }
+    setContactSubmitting(false)
+  }
+
+  const fieldStyle = (key) => ({ borderColor: contactErrors[key] ? '#ef4444' : C.borderSubtle })
 
   return (
-    <div style={{ background: '#0f0f0f', minHeight: '100vh', color: '#F5F5F5' }}>
+    <div style={{ background: C.bgPrimary, color: C.textPrimary, fontFamily: "'Inter', sans-serif" }}>
 
-      {/* ── Gear FAB ─────────────────────────────────── */}
-      <button
-        onClick={() => setPanelOpen(o => !o)}
-        title="Demo Builder"
-        style={{
-          position:     'fixed',
-          bottom:       '24px',
-          right:        '24px',
-          zIndex:       200,
-          width:        '48px',
-          height:       '48px',
-          borderRadius: '50%',
-          background:   panelOpen ? c : '#1a1a1a',
-          border:       `1px solid ${panelOpen ? c : '#333'}`,
-          color:        panelOpen ? '#0f0f0f' : '#888',
-          fontSize:     '20px',
-          cursor:       'pointer',
-          display:      'flex',
-          alignItems:   'center',
-          justifyContent: 'center',
-          boxShadow:    '0 4px 20px rgba(0,0,0,0.5)',
-          transition:   'background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s',
-        }}
-        onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
-        onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
-      >
-        ⚙️
-      </button>
-
-      {/* ── Personalization Panel ─────────────────────── */}
-      {panelOpen && <div style={{
-        background:   '#111',
-        borderBottom: '1px solid #222',
-        padding:      '20px',
+      {/* ───────── HERO ───────── */}
+      <section id="home" style={{
+        position: 'relative', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        textAlign: 'center', overflow: 'hidden',
+        backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.75)), url(${C.heroImage})`,
+        backgroundSize: 'cover', backgroundPosition: 'center',
       }}>
-        <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-          <div style={{
-            fontFamily:   "'Barlow Condensed', sans-serif",
-            fontSize:      '11px',
-            letterSpacing: '3px',
-            textTransform: 'uppercase',
-            color:         c,
-            marginBottom:  '14px',
-            display:       'flex',
-            alignItems:    'center',
-            gap:           '8px',
-          }}>
-            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: c, display: 'inline-block' }} />
-            Demo Builder — Customize Your Page
+        <div style={{
+          padding: '0 20px', opacity: heroVisible ? 1 : 0, transform: heroVisible ? 'translateY(0)' : 'translateY(28px)',
+          transition: 'opacity 0.6s ease, transform 0.6s ease',
+        }}>
+          <span style={{
+            display: 'inline-block', fontFamily: "'Inter', sans-serif", fontSize: 12, letterSpacing: 3, textTransform: 'uppercase',
+            fontWeight: 700, color: '#0d0d0d', background: C.accentColor, borderRadius: 100, padding: '7px 18px', marginBottom: 22,
+          }}>🔥 Now Taking Orders</span>
+          <h1 style={{
+            fontFamily: "'Bebas Neue', sans-serif", fontWeight: 400, color: '#fff',
+            fontSize: 'clamp(56px, 12vw, 100px)', letterSpacing: 3, lineHeight: 0.98, margin: '6px 0',
+          }}>{C.name.toUpperCase()}</h1>
+          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 'clamp(14px, 2.2vw, 20px)', letterSpacing: 4, textTransform: 'uppercase', color: C.accentAmber, fontWeight: 600 }}>
+            Food Truck
+          </p>
+          <p style={{ fontStyle: 'italic', color: C.textSecondary, fontSize: 17, marginTop: 14 }}>
+            {C.tagline}
+          </p>
+          <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap', marginTop: 40 }}>
+            <button type="button" onClick={() => scrollToSection('order')} className="ft-btn-orange">Order Now</button>
+            <button type="button" onClick={() => scrollToSection('schedule')} className="ft-btn-outline">See Today's Location</button>
+          </div>
+        </div>
+
+        <button type="button" onClick={() => scrollToSection('menu')} aria-label="Scroll down" style={{
+          position: 'absolute', bottom: 28, left: '50%', transform: 'translateX(-50%)', background: 'none', border: 'none',
+          color: C.accentAmber, fontSize: 26, cursor: 'pointer', animation: 'ftBounce 2s infinite',
+        }}>↓</button>
+      </section>
+
+      {/* ───────── MENU ───────── */}
+      <section id="menu" style={{ background: C.bgPrimary, padding: '80px 20px' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', textAlign: 'center' }}>
+          {sectionLabel('Fresh Daily')}
+          {sectionTitle('Today\'s Menu')}
+          <p style={{ color: C.textSecondary, maxWidth: 480, margin: '0 auto 36px' }}>{C.tagline}</p>
+
+          <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 36 }}>
+            {['All', ...CATEGORIES].map(cat => (
+              <button key={cat} type="button" onClick={() => setActiveCategory(cat)} style={{
+                fontFamily: "'Inter', sans-serif", fontSize: 13, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase',
+                padding: '10px 22px', borderRadius: 100, cursor: 'pointer', transition: 'all 0.2s',
+                background: activeCategory === cat ? C.accentColor : 'transparent',
+                color: activeCategory === cat ? '#0d0d0d' : C.textPrimary,
+                border: `1px solid ${activeCategory === cat ? C.accentColor : C.borderSubtle}`,
+              }}
+                onMouseEnter={e => { if (activeCategory !== cat) e.currentTarget.style.transform = 'scale(1.04)' }}
+                onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)' }}
+              >{cat}</button>
+            ))}
           </div>
 
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'flex-end' }}>
-            {/* Truck name */}
-            <div style={{ flex: '1 1 180px' }}>
-              <label style={{ fontSize: '11px', color: '#555', display: 'block', marginBottom: '6px', letterSpacing: '1px', textTransform: 'uppercase' }}>
-                Truck Name
-              </label>
-              <input
-                value={draft.truckName}
-                onChange={e => setDraft(d => ({ ...d, truckName: e.target.value }))}
-                placeholder="Moe's Food Truck"
-                style={{
-                  width: '100%', boxSizing: 'border-box',
-                  background: '#1a1a1a', border: '1px solid #2a2a2a',
-                  borderRadius: '6px', color: '#F5F5F5',
-                  fontFamily: "'Barlow Condensed', sans-serif",
-                  fontSize: '14px', padding: '9px 12px',
-                  outline: 'none',
-                }}
-              />
-            </div>
-
-            {/* 4 menu items */}
-            {draft.items.map((item, i) => (
-              <div key={i} style={{ flex: '1 1 160px' }}>
-                <label style={{ fontSize: '11px', color: '#555', display: 'block', marginBottom: '6px', letterSpacing: '1px', textTransform: 'uppercase' }}>
-                  Item {i + 1}
-                </label>
-                <div style={{ display: 'flex', gap: '6px' }}>
-                  <input
-                    value={item.name}
-                    onChange={e => setDraft(d => {
-                      const items = [...d.items]
-                      items[i] = { ...items[i], name: e.target.value }
-                      return { ...d, items }
-                    })}
-                    placeholder={DEFAULT_STATE.items[i].name}
-                    style={{
-                      flex: '1', background: '#1a1a1a', border: '1px solid #2a2a2a',
-                      borderRadius: '6px', color: '#F5F5F5',
-                      fontFamily: "'Barlow Condensed', sans-serif",
-                      fontSize: '13px', padding: '9px 10px', outline: 'none', minWidth: 0,
-                    }}
-                  />
-                  <input
-                    value={item.price}
-                    onChange={e => setDraft(d => {
-                      const items = [...d.items]
-                      items[i] = { ...items[i], price: e.target.value }
-                      return { ...d, items }
-                    })}
-                    placeholder="12"
-                    style={{
-                      width: '48px', background: '#1a1a1a', border: '1px solid #2a2a2a',
-                      borderRadius: '6px', color: '#F5F5F5',
-                      fontFamily: "'Barlow Condensed', sans-serif",
-                      fontSize: '13px', padding: '9px 8px', outline: 'none', textAlign: 'center',
-                    }}
-                  />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 18, textAlign: 'left' }}>
+            {filteredItems.map(item => (
+              <div key={item.name} className="ft-menu-card" style={{
+                background: C.bgCard, border: `1px solid ${C.borderSubtle}`, borderRadius: 14, padding: 22,
+                display: 'flex', flexDirection: 'column', gap: 10, transition: 'transform 0.2s, border-color 0.2s',
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+                  <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 21, color: C.textPrimary, letterSpacing: 1 }}>{item.name}</h3>
+                  <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, color: C.accentAmber, whiteSpace: 'nowrap' }}>${item.price.toFixed(2)}</span>
                 </div>
+                <p style={{ color: C.textSecondary, fontSize: 14, lineHeight: 1.6, flex: 1 }}>{item.desc}</p>
+                <button type="button" onClick={() => addToCart(item)} className="ft-add-btn" style={{
+                  alignSelf: 'flex-start', background: 'transparent', color: C.accentColor, border: `1px solid ${C.accentColor}`,
+                  borderRadius: 8, fontFamily: "'Inter', sans-serif", fontSize: 12, fontWeight: 700, letterSpacing: 1,
+                  textTransform: 'uppercase', padding: '8px 16px', cursor: 'pointer', transition: 'all 0.2s',
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.background = C.accentColor; e.currentTarget.style.color = '#0d0d0d' }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = C.accentColor }}
+                >+ Add to Order</button>
               </div>
             ))}
-
-            {/* Color swatches */}
-            <div>
-              <label style={{ fontSize: '11px', color: '#555', display: 'block', marginBottom: '6px', letterSpacing: '1px', textTransform: 'uppercase' }}>
-                Brand Color
-              </label>
-              <div style={{ display: 'flex', gap: '6px' }}>
-                {SWATCHES.map(sw => (
-                  <button
-                    key={sw}
-                    onClick={() => setDraft(d => ({ ...d, color: sw }))}
-                    style={{
-                      width: '32px', height: '32px', borderRadius: '6px',
-                      background: sw, border: draft.color === sw ? '2px solid #fff' : '2px solid transparent',
-                      cursor: 'pointer', padding: 0, outline: 'none',
-                      transition: 'transform 0.15s',
-                      transform: draft.color === sw ? 'scale(1.15)' : 'scale(1)',
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Build button */}
-            <button
-              onClick={handleBuildDemo}
-              disabled={loading}
-              style={{
-                background:    c,
-                color:         '#0f0f0f',
-                border:        'none',
-                borderRadius:  '6px',
-                fontFamily:    "'Barlow Condensed', sans-serif",
-                fontSize:       '14px',
-                fontWeight:     700,
-                letterSpacing:  '2px',
-                textTransform:  'uppercase',
-                padding:        '10px 24px',
-                cursor:         loading ? 'wait' : 'pointer',
-                whiteSpace:     'nowrap',
-                opacity:        loading ? 0.7 : 1,
-                transition:     'opacity 0.2s, transform 0.15s',
-              }}
-            >
-              {loading ? 'Building…' : 'Build Demo'}
-            </button>
-          </div>
-        </div>
-      </div>}
-
-      {/* ── Hero ─────────────────────────────────────── */}
-      <section style={{
-        position:   'relative',
-        height:     'min(100vh, 700px)',
-        minHeight:  '520px',
-        overflow:   'hidden',
-        display:    'flex',
-        flexDirection: 'column',
-        justifyContent: 'flex-end',
-        padding:    '0 20px 52px',
-      }}>
-        {/* Hero photo */}
-        <img
-          src={HERO_PHOTO}
-          alt="Hero"
-          style={{
-            position: 'absolute', inset: 0,
-            width: '100%', height: '100%',
-            objectFit: 'cover',
-            objectPosition: 'center',
-          }}
-        />
-
-        {/* Gradient overlay */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          background: 'linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.3) 100%)',
-        }} />
-
-        {/* Content */}
-        <div style={{ position: 'relative', zIndex: 1, maxWidth: '720px' }}>
-          {/* Open now pill */}
-          <div style={{
-            display:      'inline-flex',
-            alignItems:   'center',
-            gap:          '8px',
-            background:   'rgba(15,15,15,0.75)',
-            backdropFilter: 'blur(8px)',
-            border:       '1px solid rgba(255,255,255,0.12)',
-            borderRadius: '100px',
-            padding:      '6px 14px',
-            marginBottom: '20px',
-            fontFamily:   "'Barlow Condensed', sans-serif",
-            fontSize:      '13px',
-            letterSpacing: '0.5px',
-            color:         '#ddd',
-          }}>
-            <span style={{
-              width: '8px', height: '8px', borderRadius: '50%',
-              background: '#22c55e',
-              boxShadow: '0 0 6px #22c55e',
-              display: 'inline-block', flexShrink: 0,
-            }} />
-            Open now · San Antonio
-          </div>
-
-          {/* Headline */}
-          <h1 style={{
-            fontFamily:   "'Bebas Neue', sans-serif",
-            fontSize:      'clamp(64px, 12vw, 120px)',
-            letterSpacing: '3px',
-            lineHeight:    0.9,
-            marginBottom:  '20px',
-            color:         '#fff',
-          }}>
-            {demo.truckName.toUpperCase()}
-          </h1>
-
-          <p style={{
-            fontSize:    '16px',
-            color:       'rgba(255,255,255,0.6)',
-            marginBottom: '28px',
-            maxWidth:    '440px',
-            lineHeight:  1.6,
-            fontFamily:  "'Barlow Condensed', sans-serif",
-            letterSpacing: '0.5px',
-          }}>
-            Fresh. Fast. Fire. Order ahead or find us on the block — bringing the heat to SA every day.
-          </p>
-
-          {/* CTAs */}
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-            <Link to="/foodtruck/order" style={{
-              background:    c,
-              color:         '#0f0f0f',
-              border:        'none',
-              borderRadius:  '8px',
-              fontFamily:    "'Barlow Condensed', sans-serif",
-              fontSize:       '15px',
-              fontWeight:     700,
-              letterSpacing:  '2px',
-              textTransform:  'uppercase',
-              textDecoration: 'none',
-              padding:        '14px 32px',
-              display:        'inline-block',
-              boxShadow:      `0 0 32px ${c}44`,
-              transition:     'transform 0.15s, opacity 0.15s',
-            }}
-              onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-              onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
-            >
-              Order Now
-            </Link>
-            <Link to="/foodtruck/menu" style={{
-              background:    'rgba(255,255,255,0.08)',
-              color:         '#fff',
-              border:        '1px solid rgba(255,255,255,0.2)',
-              borderRadius:  '8px',
-              fontFamily:    "'Barlow Condensed', sans-serif",
-              fontSize:       '15px',
-              fontWeight:     600,
-              letterSpacing:  '2px',
-              textTransform:  'uppercase',
-              textDecoration: 'none',
-              padding:        '14px 32px',
-              display:        'inline-block',
-              backdropFilter: 'blur(8px)',
-              transition:     'background 0.2s, transform 0.15s',
-            }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.14)'; e.currentTarget.style.transform = 'translateY(-2px)' }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.transform = 'translateY(0)' }}
-            >
-              See the Menu
-            </Link>
           </div>
         </div>
       </section>
 
-      {/* ── Trust Bar ────────────────────────────────── */}
-      <div style={{
-        background:   '#141414',
-        borderTop:    '1px solid #1f1f1f',
-        borderBottom: '1px solid #1f1f1f',
-        padding:      '24px 20px',
-      }}>
-        <div style={{
-          maxWidth:       '640px',
-          margin:         '0 auto',
-          display:        'flex',
-          justifyContent: 'space-around',
-          alignItems:     'center',
-          flexWrap:       'wrap',
-          gap:            '16px',
-        }}>
-          {[
-            { icon: '✅', stat: '100% Fresh', label: 'Made Daily' },
-            { icon: '📍', stat: 'SA Local',   label: '& Proud' },
-            { icon: '⭐', stat: '5★ Rated',   label: 'Google Reviews' },
-          ].map(({ icon, stat, label }) => (
-            <div key={stat} style={{ textAlign: 'center', padding: '0 16px' }}>
-              <div style={{ fontSize: '20px', marginBottom: '4px' }}>{icon}</div>
-              <div style={{
-                fontFamily:   "'Bebas Neue', sans-serif",
-                fontSize:      '22px',
-                letterSpacing: '1.5px',
-                color:         c,
-                lineHeight:    1,
-              }}>
-                {stat}
-              </div>
-              <div style={{
-                fontFamily:   "'Barlow Condensed', sans-serif",
-                fontSize:      '11px',
-                letterSpacing: '2px',
-                textTransform: 'uppercase',
-                color:         '#555',
-                marginTop:     '2px',
-              }}>
-                {label}
-              </div>
+      {/* ───────── ORDER ───────── */}
+      <section id="order" style={{ background: C.bgSecondary, padding: '80px 20px', position: 'relative' }}>
+        <div style={{ maxWidth: 760, margin: '0 auto', textAlign: 'center' }}>
+          {sectionLabel('Order Ahead')}
+          {sectionTitle('Build Your Order')}
+
+          {confirmation ? (
+            <div style={{ background: C.bgCard, border: `1px solid ${C.borderSubtle}`, borderRadius: 16, padding: '40px 28px', textAlign: 'center' }}>
+              <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 32, color: C.accentAmber, marginBottom: 10, letterSpacing: 1 }}>Your order is being prepared 🔥</h3>
+              <p style={{ color: C.textSecondary, marginBottom: 6 }}>Thanks, {confirmation.name} — we're firing it up.</p>
+              <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 30, letterSpacing: 3, margin: '14px 0' }}>#{confirmation.orderNumber}</p>
+              <p style={{ color: C.textSecondary, fontSize: 14 }}>Pickup: {confirmation.pickupTime} · Estimated wait: 15–25 min</p>
+              <p style={{ color: C.textSecondary, fontSize: 14, marginBottom: 24 }}>Total: ${confirmation.total.toFixed(2)}</p>
+              <button type="button" onClick={resetOrder} className="ft-btn-outline" style={{ display: 'inline-block' }}>Place Another Order</button>
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ── Menu Preview (DoorDash style) ─────────────── */}
-      <section style={{ padding: '64px 20px', maxWidth: '860px', margin: '0 auto' }}>
-        <div style={{ marginBottom: '36px' }}>
-          <div style={{
-            fontFamily:   "'Barlow Condensed', sans-serif",
-            fontSize:      '11px',
-            letterSpacing: '4px',
-            textTransform: 'uppercase',
-            color:         c,
-            marginBottom:  '8px',
-          }}>
-            What We're Serving
-          </div>
-          <h2 style={{
-            fontFamily:   "'Bebas Neue', sans-serif",
-            fontSize:      'clamp(32px, 6vw, 56px)',
-            letterSpacing: '3px',
-            lineHeight:    1,
-            marginBottom:  '8px',
-          }}>
-            TODAY'S MENU
-          </h2>
-          <p style={{ color: '#555', fontSize: '14px' }}>
-            Rotating specials. Consistent heat. Always fresh.
-          </p>
-        </div>
-
-        {/* Cards — DoorDash style: text left, photo right */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', background: '#1a1a1a', borderRadius: '12px', overflow: 'hidden', border: '1px solid #222' }}>
-          {demo.items.map((item, i) => (
-            <div
-              key={item.name + i}
-              style={{
-                display:        'flex',
-                alignItems:     'center',
-                gap:            '0',
-                background:     '#141414',
-                borderBottom:   i < demo.items.length - 1 ? '1px solid #1e1e1e' : 'none',
-                transition:     'background 0.2s',
-                cursor:         'default',
-                minHeight:      '120px',
-              }}
-              onMouseEnter={e => e.currentTarget.style.background = '#1a1a1a'}
-              onMouseLeave={e => e.currentTarget.style.background = '#141414'}
-            >
-              {/* Left: text */}
-              <div style={{ flex: 1, padding: '20px 20px 20px 24px', minWidth: 0 }}>
-                <div style={{
-                  fontFamily:   "'Bebas Neue', sans-serif",
-                  fontSize:      '20px',
-                  letterSpacing: '1.5px',
-                  marginBottom:  '4px',
-                  color:         '#F5F5F5',
-                }}>
-                  {item.name}
-                </div>
-                <p style={{
-                  fontSize:    '13px',
-                  color:       '#666',
-                  lineHeight:  1.5,
-                  marginBottom: '12px',
-                  display:     '-webkit-box',
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: 'vertical',
-                  overflow:    'hidden',
-                }}>
-                  {item.desc}
-                </p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-                  <span style={{
-                    fontFamily:   "'Bebas Neue', sans-serif",
-                    fontSize:      '20px',
-                    color:         c,
-                    letterSpacing: '1px',
-                  }}>
-                    ${item.price}
-                  </span>
-                  <Link to="/foodtruck/order" style={{
-                    display:        'inline-flex',
-                    alignItems:     'center',
-                    gap:            '6px',
-                    background:     c,
-                    color:          '#0f0f0f',
-                    borderRadius:   '6px',
-                    fontFamily:     "'Barlow Condensed', sans-serif",
-                    fontSize:        '12px',
-                    fontWeight:      700,
-                    letterSpacing:   '1.5px',
-                    textTransform:   'uppercase',
-                    textDecoration:  'none',
-                    padding:         '7px 14px',
-                    transition:      'opacity 0.2s, transform 0.15s',
-                    whiteSpace:      'nowrap',
-                  }}
-                    onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.04)'}
-                    onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
-                  >
-                    + Add
-                  </Link>
-                </div>
+          ) : (
+            <>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 32, flexWrap: 'wrap' }}>
+                {['Build Order', 'Your Info', 'Confirm'].map((label, i) => {
+                  const n = i + 1
+                  return (
+                    <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div style={{
+                        width: 30, height: 30, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 13, fontWeight: 700, fontFamily: "'Inter', sans-serif",
+                        background: step >= n ? C.accentColor : 'transparent', color: step >= n ? '#0d0d0d' : C.textSecondary,
+                        border: `1px solid ${step >= n ? C.accentColor : C.borderSubtle}`,
+                      }}>{n}</div>
+                      <span style={{ fontSize: 13, color: step >= n ? C.textPrimary : C.textSecondary, letterSpacing: 1 }}>{label}</span>
+                      {n < 3 && <span style={{ width: 28, height: 1, background: C.borderSubtle, margin: '0 4px' }} />}
+                    </div>
+                  )
+                })}
               </div>
 
-              {/* Right: photo */}
-              <div style={{
-                width:        '120px',
-                height:       '120px',
-                flexShrink:   0,
-                background:   '#1e1e1e',
-                overflow:     'hidden',
-                position:     'relative',
-              }}>
-                {photos[item.name] ? (
-                  <img
-                    src={photos[item.name]}
-                    alt={item.name}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
-                ) : (
-                  <div style={{
-                    width: '100%', height: '100%',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '36px',
-                    background: 'linear-gradient(135deg, #1a1a1a, #242424)',
-                  }}>
-                    {['🍔','🌮','🍟','🥤'][i]}
-                  </div>
+              <div style={{ background: C.bgCard, border: `1px solid ${C.borderSubtle}`, borderRadius: 16, padding: 28, textAlign: 'left' }}>
+                {step === 1 && (
+                  <>
+                    <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 24, marginBottom: 16, letterSpacing: 1 }}>Pick your items</h3>
+                    {cart.length === 0 ? (
+                      <p style={{ color: C.textSecondary, fontSize: 14, marginBottom: 18 }}>
+                        Your order is empty — browse the menu above and tap “+ Add to Order”.
+                      </p>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 18 }}>
+                        {cart.map(c => (
+                          <div key={c.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: 14 }}>{c.name}</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                              <button type="button" onClick={() => changeQty(c.name, -1)} className="ft-qty-btn">−</button>
+                              <span style={{ minWidth: 18, textAlign: 'center', fontSize: 14 }}>{c.qty}</span>
+                              <button type="button" onClick={() => changeQty(c.name, 1)} className="ft-qty-btn">+</button>
+                              <span style={{ minWidth: 56, textAlign: 'right', color: C.accentAmber, fontSize: 14 }}>${(c.price * c.qty).toFixed(2)}</span>
+                            </div>
+                          </div>
+                        ))}
+                        <div style={{ borderTop: `1px solid ${C.borderSubtle}`, paddingTop: 10, display: 'flex', justifyContent: 'space-between', fontWeight: 700 }}>
+                          <span>Subtotal</span><span style={{ color: C.accentAmber }}>${subtotal.toFixed(2)}</span>
+                        </div>
+                      </div>
+                    )}
+                    <label style={{ fontSize: 12, letterSpacing: 1, textTransform: 'uppercase', color: C.textSecondary }}>Pickup Time (today: {todaySchedule?.hours || 'closed'})</label>
+                    <select value={pickupTime} onChange={e => setPickupTime(e.target.value)} className="ft-select">
+                      <option value="">Select a time...</option>
+                      {TIME_SLOTS.map(slot => <option key={slot} value={slot}>{slot}</option>)}
+                    </select>
+                    {TIME_SLOTS.length === 0 && <p style={{ fontSize: 12, color: '#ef4444', marginTop: 6 }}>We're closed today — pick a time for your next visit!</p>}
+                    <button type="button" onClick={() => goToStep(2)} className="ft-btn-orange" style={{ marginTop: 20, display: 'inline-block' }}>Continue →</button>
+                  </>
+                )}
+
+                {step === 2 && (
+                  <>
+                    <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 24, marginBottom: 16, letterSpacing: 1 }}>Your info</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                      <div>
+                        <label style={{ fontSize: 12, letterSpacing: 1, textTransform: 'uppercase', color: C.textSecondary }}>Name</label>
+                        <input className="ft-input" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Your name" />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: 12, letterSpacing: 1, textTransform: 'uppercase', color: C.textSecondary }}>Phone</label>
+                        <input className="ft-input" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="(210) 555-0100" />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: 12, letterSpacing: 1, textTransform: 'uppercase', color: C.textSecondary }}>Pickup Time</label>
+                        <select value={pickupTime} onChange={e => setPickupTime(e.target.value)} className="ft-select">
+                          <option value="">Select a time...</option>
+                          {TIME_SLOTS.map(slot => <option key={slot} value={slot}>{slot}</option>)}
+                        </select>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 12, marginTop: 22 }}>
+                      <button type="button" onClick={() => setStep(1)} className="ft-btn-outline">← Back</button>
+                      <button type="button" onClick={() => goToStep(3)} className="ft-btn-orange">Review Order →</button>
+                    </div>
+                  </>
+                )}
+
+                {step === 3 && (
+                  <>
+                    <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 24, marginBottom: 16, letterSpacing: 1 }}>Confirm your order</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16, fontSize: 14, color: C.textSecondary }}>
+                      {cart.map(c => (
+                        <div key={c.name} style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <span>{c.qty}× {c.name}</span><span style={{ color: C.accentAmber }}>${(c.price * c.qty).toFixed(2)}</span>
+                        </div>
+                      ))}
+                      <div style={{ borderTop: `1px solid ${C.borderSubtle}`, paddingTop: 8, display: 'flex', justifyContent: 'space-between', fontWeight: 700, color: C.textPrimary }}>
+                        <span>Subtotal</span><span style={{ color: C.accentAmber }}>${subtotal.toFixed(2)}</span>
+                      </div>
+                      <div>Pickup: <span style={{ color: C.textPrimary }}>{pickupTime}</span></div>
+                      <div>Name: <span style={{ color: C.textPrimary }}>{form.name}</span> · Phone: <span style={{ color: C.textPrimary }}>{form.phone}</span></div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 12 }}>
+                      <button type="button" onClick={() => setStep(2)} className="ft-btn-outline">← Back</button>
+                      <button type="button" onClick={handleConfirm} disabled={submitting} className="ft-btn-orange" style={{ opacity: submitting ? 0.6 : 1 }}>
+                        {submitting ? 'Placing...' : 'Confirm Order'}
+                      </button>
+                    </div>
+                  </>
                 )}
               </div>
-            </div>
-          ))}
+              <p style={{ marginTop: 18, fontSize: 13, color: C.accentAmber }}>
+                💳 Stripe payment integration — $300 add-on
+              </p>
+            </>
+          )}
         </div>
 
-        <div style={{ marginTop: '24px', textAlign: 'center' }}>
-          <Link to="/foodtruck/menu" style={{
-            background:    'transparent',
-            color:         c,
-            border:        `1px solid ${c}55`,
-            borderRadius:  '8px',
-            fontFamily:    "'Barlow Condensed', sans-serif",
-            fontSize:       '14px',
-            fontWeight:     600,
-            letterSpacing:  '3px',
-            textTransform:  'uppercase',
-            textDecoration: 'none',
-            padding:        '13px 32px',
-            display:        'inline-block',
-            transition:     'all 0.2s',
-          }}
-            onMouseEnter={e => { e.currentTarget.style.background = `${c}14` }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
-          >
-            View Full Menu →
-          </Link>
+        {/* Cart drawer */}
+        {!confirmation && cart.length > 0 && (
+          <div style={{
+            position: 'fixed', top: '50%', right: cartOpen ? 20 : -300, transform: 'translateY(-50%)',
+            width: 260, background: C.bgCard, border: `1px solid ${C.borderSubtle}`, borderRadius: 14,
+            padding: 18, zIndex: 80, transition: 'right 0.35s ease', boxShadow: '0 12px 40px rgba(0,0,0,0.4)',
+          }} className="ft-cart-drawer">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+              <strong style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: 1, fontSize: 18 }}>Your Cart</strong>
+              <button type="button" onClick={() => setCartOpen(false)} style={{ background: 'none', border: 'none', color: C.textSecondary, cursor: 'pointer' }}>✕</button>
+            </div>
+            <div style={{ fontSize: 13, color: C.textSecondary, marginBottom: 8 }}>{cart.reduce((s, c) => s + c.qty, 0)} items</div>
+            <div style={{ fontWeight: 700, color: C.accentAmber, marginBottom: 12 }}>${subtotal.toFixed(2)}</div>
+            <button type="button" onClick={() => { setCartOpen(false); goToStep(2) }} className="ft-btn-orange" style={{ display: 'block', width: '100%', textAlign: 'center' }}>Checkout →</button>
+          </div>
+        )}
+        {!confirmation && cart.length > 0 && !cartOpen && (
+          <button type="button" onClick={() => setCartOpen(true)} className="ft-cart-tab" style={{
+            position: 'fixed', top: '50%', right: 0, transform: 'translateY(-50%)', zIndex: 79,
+            background: C.accentColor, color: '#0d0d0d', border: 'none', borderRadius: '10px 0 0 10px',
+            padding: '14px 10px', fontSize: 12, fontWeight: 700, letterSpacing: 1, cursor: 'pointer', writingMode: 'vertical-rl',
+          }}>Cart ({cart.reduce((s, c) => s + c.qty, 0)})</button>
+        )}
+      </section>
+
+      {/* ───────── SCHEDULE ───────── */}
+      <section id="schedule" style={{ background: C.bgPrimary, padding: '80px 20px' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', textAlign: 'center' }}>
+          {sectionLabel('Where We At')}
+          {sectionTitle('Weekly Schedule')}
+          <p style={{ color: C.textSecondary, maxWidth: 480, margin: '0 auto 36px' }}>We move daily — find us at one of these spots.</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, textAlign: 'left' }}>
+            {DAY_KEYS.map(day => {
+              const sch = C.schedule[day]
+              const isToday = day === todayKey
+              const closed = !sch || /closed/i.test(sch.location)
+              return (
+                <div key={day} style={{
+                  background: isToday ? `linear-gradient(135deg, ${C.accentColor}22, ${C.bgCard})` : C.bgCard,
+                  border: `1px solid ${isToday ? C.accentColor : C.borderSubtle}`, borderRadius: 14, padding: 20,
+                  opacity: closed && !isToday ? 0.55 : 1,
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                    <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 20, letterSpacing: 1 }}>{DAY_NAMES[day]}</span>
+                    {isToday && <span style={{
+                      fontSize: 10, letterSpacing: 1, textTransform: 'uppercase', fontWeight: 700, color: '#0d0d0d',
+                      background: C.accentColor, borderRadius: 100, padding: '4px 10px',
+                    }}>Here Today</span>}
+                  </div>
+                  {closed ? (
+                    <p style={{ color: C.textSecondary, fontSize: 14 }}>Closed</p>
+                  ) : (
+                    <>
+                      <p style={{ color: C.textPrimary, fontSize: 15, fontWeight: 600, marginBottom: 2 }}>{sch.location}</p>
+                      <p style={{ color: C.textSecondary, fontSize: 13, marginBottom: 6 }}>{sch.address}</p>
+                      <p style={{ color: C.accentAmber, fontSize: 13, marginBottom: 12 }}>{sch.hours}</p>
+                      <a href={`${C.googleMapsUrl}/?q=${encodeURIComponent(sch.address || sch.location)}`} target="_blank" rel="noopener noreferrer" className="ft-btn-outline" style={{ display: 'inline-block', padding: '8px 16px', fontSize: 12 }}>Get Directions</a>
+                    </>
+                  )}
+                </div>
+              )
+            })}
+          </div>
         </div>
       </section>
 
-      {/* ── Why Order Direct? ─────────────────────────── */}
-      <section style={{ padding: '0 20px 72px', maxWidth: '860px', margin: '0 auto' }}>
-        <div style={{ marginBottom: '36px' }}>
+      {/* ───────── LOYALTY ───────── */}
+      <section id="loyalty" style={{ background: C.bgSecondary, padding: '80px 20px' }}>
+        <div style={{ maxWidth: 640, margin: '0 auto', textAlign: 'center' }}>
+          {sectionLabel('Member Perks')}
+          {sectionTitle('Punch Card Rewards')}
           <div style={{
-            fontFamily:   "'Barlow Condensed', sans-serif",
-            fontSize:      '11px',
-            letterSpacing: '4px',
-            textTransform: 'uppercase',
-            color:         c,
-            marginBottom:  '8px',
+            background: `linear-gradient(135deg, ${C.bgCard}, ${C.bgSecondary})`, border: `1px solid ${C.borderSubtle}`,
+            borderRadius: 16, padding: 32, position: 'relative', overflow: 'hidden',
           }}>
-            The Difference
+            <div style={{ position: 'absolute', inset: 0, border: `1px solid ${C.accentColor}33`, borderRadius: 16, pointerEvents: 'none' }} />
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, maxWidth: 360, margin: '0 auto 18px' }}>
+              {Array.from({ length: STAMPS }).map((_, i) => (
+                <div key={i} style={{
+                  aspectRatio: '1', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  border: `2px solid ${i < earnedStamps ? C.accentColor : '#3a3a3a'}`,
+                  background: i < earnedStamps ? `${C.accentColor}33` : 'transparent',
+                  color: i < earnedStamps ? C.accentColor : '#444', fontSize: 18,
+                  animation: i < earnedStamps ? `ftPunchPop 0.4s ease backwards ${i * 0.1}s` : 'none',
+                }}>{i < earnedStamps ? '🔥' : '○'}</div>
+              ))}
+            </div>
+            <p style={{ color: C.textSecondary, fontSize: 14, marginBottom: user ? 0 : 14 }}>10 punches = 1 free meal</p>
+            {!user && (
+              <button type="button" onClick={() => setAuthOpen(true)} className="ft-btn-orange" style={{ marginTop: 6 }}>Join to Start Earning</button>
+            )}
+            {user && (
+              <p style={{ fontSize: 13, color: C.textPrimary, marginTop: 8 }}>
+                {earnedStamps} / {STAMPS} punches {earnedStamps >= STAMPS ? '— free meal unlocked! 🎉' : `— ${STAMPS - earnedStamps} more to a free meal`}
+              </p>
+            )}
           </div>
-          <h2 style={{
-            fontFamily:   "'Bebas Neue', sans-serif",
-            fontSize:      'clamp(32px, 6vw, 56px)',
-            letterSpacing: '3px',
-            lineHeight:    1,
-          }}>
-            WHY ORDER DIRECT?
-          </h2>
         </div>
+      </section>
 
-        {/* 2x2 grid */}
-        <div style={{
-          display:             'grid',
-          gridTemplateColumns: 'repeat(2, 1fr)',
-          gap:                 '12px',
-        }}>
-          {PERKS.map(({ icon, title, desc }) => (
-            <div
-              key={title}
-              style={{
-                background:   '#141414',
-                border:       '1px solid #1e1e1e',
-                borderRadius: '12px',
-                padding:      'clamp(20px, 3vw, 28px)',
-                transition:   'border-color 0.2s, transform 0.2s',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = `${c}44`; e.currentTarget.style.transform = 'translateY(-3px)' }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = '#1e1e1e'; e.currentTarget.style.transform = 'translateY(0)' }}
-            >
-              <div style={{ fontSize: '28px', marginBottom: '12px' }}>{icon}</div>
-              <div style={{
-                fontFamily:   "'Bebas Neue', sans-serif",
-                fontSize:      '20px',
-                letterSpacing: '2px',
-                marginBottom:  '6px',
-                color:         '#F5F5F5',
+      {/* ───────── GALLERY ───────── */}
+      <section id="gallery" style={{ background: C.bgPrimary, padding: '80px 20px' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', textAlign: 'center' }}>
+          {sectionLabel('A Look Inside')}
+          {sectionTitle('On the Truck')}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
+            {C.galleryImages.map((src, i) => (
+              <div key={i} className="ft-gallery-item" onClick={() => setLightboxIndex(i)} style={{
+                borderRadius: 12, overflow: 'hidden', border: `1px solid ${C.borderSubtle}`, aspectRatio: '4/3', position: 'relative', cursor: 'pointer',
               }}>
-                {title}
+                <img src={src} alt={`${C.name} ${i + 1}`} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.35s' }} />
+                <div className="ft-gallery-overlay" style={{ position: 'absolute', inset: 0, border: `2px solid ${C.accentColor}`, borderRadius: 12, opacity: 0, transition: 'opacity 0.25s' }} />
               </div>
-              <p style={{ fontSize: '13px', color: '#666', lineHeight: 1.6, margin: 0 }}>{desc}</p>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ───────── FIND US ───────── */}
+      <section id="find-us" style={{ background: C.bgSecondary, padding: '80px 20px' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 36 }}>
+            {sectionLabel('Find Us')}
+            {sectionTitle('Catch Us Today')}
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 28 }} className="ft-findus-grid">
+            <div>
+              {!/closed/i.test(todaySchedule?.location || '') ? (
+                <div style={{ marginBottom: 22 }}>
+                  <span style={{ fontSize: 12, letterSpacing: 2, textTransform: 'uppercase', color: C.accentAmber, fontWeight: 700 }}>Today — {DAY_NAMES[todayKey]}</span>
+                  <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 28, color: C.accentColor, margin: '6px 0 2px', letterSpacing: 1 }}>{todaySchedule.location}</h3>
+                  <p style={{ color: C.textSecondary, fontSize: 14 }}>{todaySchedule.address} · {todaySchedule.hours}</p>
+                </div>
+              ) : (
+                <p style={{ color: C.textSecondary, marginBottom: 22 }}>We're closed today — see the schedule below for our next stop.</p>
+              )}
+
+              <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 20, marginBottom: 14, letterSpacing: 1 }}>Hours & Locations</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 22 }}>
+                {DAY_KEYS.map(day => {
+                  const sch = C.schedule[day]
+                  const isToday = day === todayKey
+                  return (
+                    <div key={day} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, padding: '6px 0', borderBottom: `1px solid ${C.borderSubtle}` }}>
+                      <span style={{ color: isToday ? C.accentAmber : C.textPrimary, fontWeight: isToday ? 700 : 400 }}>{DAY_NAMES[day]}{isToday && ' · Today'}</span>
+                      <span style={{ color: isToday ? C.accentAmber : C.textSecondary, textAlign: 'right' }}>{sch?.location || 'Closed'} · {sch?.hours || 'Closed'}</span>
+                    </div>
+                  )
+                })}
+              </div>
+              <p style={{ fontSize: 14, color: C.textPrimary, marginBottom: 4 }}>{C.address}</p>
+              <p style={{ fontSize: 14, color: C.textSecondary, marginBottom: 18 }}>{C.phone}</p>
+              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                <a href={C.googleMapsUrl} target="_blank" rel="noopener noreferrer" className="ft-btn-outline">Open in Google Maps</a>
+                <a href={C.appleMapsUrl} target="_blank" rel="noopener noreferrer" className="ft-btn-outline">Open in Apple Maps</a>
+                <a href={`https://instagram.com/${C.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="ft-btn-outline">📸 {C.instagram}</a>
+              </div>
             </div>
-          ))}
-        </div>
-      </section>
 
-      {/* ── CTA Band ──────────────────────────────────── */}
-      <section style={{ padding: '0 20px 72px' }}>
-        <div style={{
-          maxWidth:     '860px',
-          margin:       '0 auto',
-          background:   `linear-gradient(135deg, ${c}18 0%, #111 100%)`,
-          border:       `1px solid ${c}30`,
-          borderRadius: '16px',
-          padding:      'clamp(32px, 5vw, 56px)',
-          textAlign:    'center',
-          boxShadow:    `0 0 80px ${c}0a`,
-        }}>
-          <div style={{
-            display:      'inline-flex',
-            alignItems:   'center',
-            gap:          '8px',
-            background:   `${c}18`,
-            border:       `1px solid ${c}30`,
-            borderRadius: '100px',
-            padding:      '5px 14px',
-            marginBottom: '20px',
-            fontFamily:   "'Barlow Condensed', sans-serif",
-            fontSize:      '11px',
-            letterSpacing: '2px',
-            textTransform: 'uppercase',
-            color:         c,
-          }}>
-            🔥 Ready When You Are
+            <div style={{
+              background: C.bgCard, border: `1px solid ${C.borderSubtle}`, borderRadius: 14,
+              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+              padding: 32, textAlign: 'center', minHeight: 220,
+            }}>
+              <span style={{ fontSize: 34, marginBottom: 10 }}>🚚</span>
+              <p style={{ color: C.textSecondary, fontSize: 14, marginBottom: 16 }}>Map preview unavailable in demo mode</p>
+              <a href={C.googleMapsUrl} target="_blank" rel="noopener noreferrer" className="ft-btn-orange">Open Google Maps</a>
+            </div>
           </div>
-          <h2 style={{
-            fontFamily:   "'Bebas Neue', sans-serif",
-            fontSize:      'clamp(30px, 6vw, 56px)',
-            letterSpacing: '3px',
-            lineHeight:    1,
-            marginBottom:  '12px',
-          }}>
-            HUNGRY? WE'RE OUT THERE.
-          </h2>
-          <p style={{ color: '#666', fontSize: '15px', marginBottom: '32px' }}>
-            Check today's location · Order ahead · Skip the line
-          </p>
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link to="/foodtruck/location" style={{
-              background:    'rgba(255,255,255,0.06)',
-              color:         '#F5F5F5',
-              border:        '1px solid #2a2a2a',
-              borderRadius:  '8px',
-              fontFamily:    "'Barlow Condensed', sans-serif",
-              fontSize:       '15px',
-              fontWeight:     600,
-              letterSpacing:  '2px',
-              textTransform:  'uppercase',
-              textDecoration: 'none',
-              padding:        '14px 28px',
-              whiteSpace:     'nowrap',
-              transition:     'all 0.2s',
-            }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = c; e.currentTarget.style.color = c }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = '#2a2a2a'; e.currentTarget.style.color = '#F5F5F5' }}
-            >
-              Find Us →
-            </Link>
-            <Link to="/foodtruck/order" style={{
-              background:    c,
-              color:         '#0f0f0f',
-              border:        'none',
-              borderRadius:  '8px',
-              fontFamily:    "'Barlow Condensed', sans-serif",
-              fontSize:       '15px',
-              fontWeight:     700,
-              letterSpacing:  '2px',
-              textTransform:  'uppercase',
-              textDecoration: 'none',
-              padding:        '14px 32px',
-              whiteSpace:     'nowrap',
-              boxShadow:      `0 0 32px ${c}30`,
-              transition:     'transform 0.15s, opacity 0.15s',
-            }}
-              onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-              onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
-            >
-              Order Now
-            </Link>
+
+          {/* Contact form */}
+          <div style={{ marginTop: 56, maxWidth: 560, marginLeft: 'auto', marginRight: 'auto' }}>
+            <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 24, marginBottom: 16, textAlign: 'center', letterSpacing: 1 }}>Send Us a Message</h3>
+            {contactSent ? (
+              <p style={{ color: C.accentAmber, fontSize: 15, textAlign: 'center', animation: 'ftFadeIn 0.4s ease' }}>Message sent! We'll be in touch soon.</p>
+            ) : (
+              <form onSubmit={submitContactForm} style={{ display: 'flex', flexDirection: 'column', gap: 4, animation: 'ftFadeIn 0.4s ease' }}>
+                <div>
+                  <input className="ft-input" placeholder="Name" value={contact.name} onChange={e => setContactField('name', e.target.value)} style={fieldStyle('name')} />
+                  {contactErrors.name && <span style={{ color: '#ef4444', fontSize: 12, marginTop: 4, display: 'block' }}>{contactErrors.name}</span>}
+                </div>
+                <div>
+                  <input className="ft-input" type="email" placeholder="Email" value={contact.email} onChange={e => setContactField('email', e.target.value)} style={fieldStyle('email')} />
+                  {contactErrors.email && <span style={{ color: '#ef4444', fontSize: 12, marginTop: 4, display: 'block' }}>{contactErrors.email}</span>}
+                </div>
+                <div>
+                  <textarea className="ft-input" rows={4} placeholder="Message" value={contact.message} onChange={e => setContactField('message', e.target.value)} style={fieldStyle('message')} />
+                  {contactErrors.message && <span style={{ color: '#ef4444', fontSize: 12, marginTop: 4, display: 'block' }}>{contactErrors.message}</span>}
+                </div>
+                <button type="submit" disabled={contactSubmitting} className="ft-btn-orange" style={{ marginTop: 10 }}>{contactSubmitting ? 'Sending...' : 'Send Message'}</button>
+              </form>
+            )}
           </div>
         </div>
       </section>
 
+      <AddOnsDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
+      <FloatingButtons onOpenAddOns={() => setDrawerOpen(true)} />
+      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
+
+      {lightboxIndex !== null && (
+        <Lightbox images={C.galleryImages} index={lightboxIndex} onClose={() => setLightboxIndex(null)} onChange={setLightboxIndex} />
+      )}
+
+      <style>{`
+        @keyframes ftBounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(8px); } }
+        @keyframes ftPunchPop { 0% { transform: scale(0.4); opacity: 0; } 70% { transform: scale(1.15); opacity: 1; } 100% { transform: scale(1); } }
+        @keyframes ftFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        .ft-btn-orange {
+          display: inline-block; background: ${C.accentColor}; color: #0d0d0d; border: none; border-radius: 8px;
+          font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 1px;
+          padding: 13px 28px; cursor: pointer; text-decoration: none; transition: transform 0.2s, filter 0.2s;
+        }
+        .ft-btn-orange:hover { transform: scale(1.03); filter: brightness(1.1); }
+        .ft-btn-outline {
+          display: inline-block; background: transparent; color: #fff; border: 1px solid ${C.accentColor}; border-radius: 8px;
+          font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 1px;
+          padding: 12px 26px; cursor: pointer; text-decoration: none; transition: transform 0.2s, background 0.2s;
+        }
+        .ft-btn-outline:hover { transform: scale(1.03); background: rgba(249,115,22,0.1); }
+        .ft-menu-card:hover { transform: translateY(-4px); border-color: ${C.accentColor}66; }
+        .ft-add-btn:hover { transform: scale(1.03); }
+        .ft-qty-btn {
+          width: 26px; height: 26px; border-radius: 6px; border: 1px solid ${C.borderSubtle}; background: transparent;
+          color: ${C.textPrimary}; cursor: pointer; font-size: 14px; transition: all 0.15s;
+        }
+        .ft-qty-btn:hover { border-color: ${C.accentColor}; color: ${C.accentColor}; }
+        .ft-input, .ft-select {
+          width: 100%; background: #141414; color: ${C.textPrimary}; border: 1px solid ${C.borderSubtle};
+          border-radius: 8px; padding: 11px 14px; font-size: 14px; font-family: 'Inter', sans-serif; outline: none;
+          margin-top: 6px; color-scheme: dark; transition: border-color 0.2s;
+        }
+        .ft-input:focus, .ft-select:focus { border-color: ${C.accentColor}; }
+        .ft-gallery-item:hover img { transform: scale(1.06); }
+        .ft-gallery-item:hover .ft-gallery-overlay { opacity: 1; }
+        @media (max-width: 860px) {
+          .ft-findus-grid { grid-template-columns: 1fr !important; }
+          .ft-cart-drawer, .ft-cart-tab { display: none !important; }
+        }
+      `}</style>
     </div>
   )
 }
