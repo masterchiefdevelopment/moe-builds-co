@@ -6,11 +6,11 @@ import { RESTAURANT_CONFIG as C } from '../../pages/restaurant/config'
 import toast from 'react-hot-toast'
 
 const LINKS = [
-  { label: 'Home',     to: '/restaurant' },
-  { label: 'Menu',     to: '/restaurant/menu' },
-  { label: 'Order',    to: '/restaurant/order' },
-  { label: 'Gallery',  to: '/restaurant/gallery' },
-  { label: 'Visit',    to: '/restaurant/location' },
+  { label: 'Home', to: '/restaurant#home' },
+  { label: 'Menu', to: '/restaurant#menu' },
+  { label: 'Order', to: '/restaurant#order' },
+  { label: 'Gallery', to: '/restaurant#gallery' },
+  { label: 'Visit', to: '/restaurant#visit' },
 ]
 
 export default function RestaurantNav() {
@@ -32,14 +32,16 @@ export default function RestaurantNav() {
     if (!user && profile) setProfile(null)
   }, [user])
 
-  useEffect(() => { setMenuOpen(false) }, [location.pathname])
+  useEffect(() => { setMenuOpen(false) }, [location.pathname, location.hash])
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
   }, [menuOpen])
 
-  const isActive = (to) =>
-    to === '/restaurant' ? location.pathname === '/restaurant' : location.pathname.startsWith(to)
+  const isActive = (to) => {
+    const hash = to.slice(to.indexOf('#'))
+    return location.pathname === '/restaurant' && (location.hash || '#home') === hash
+  }
 
   const handleSignOut = async () => {
     setLeaving(true)
@@ -50,150 +52,137 @@ export default function RestaurantNav() {
     setLeaving(false)
   }
 
+  const linkColor = (to) => isActive(to) ? C.accentColor : '#fff'
+
   return (
     <>
       <header style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
         height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 20px', background: 'rgba(10,10,10,0.97)', backdropFilter: 'blur(12px)',
-        borderBottom: scrolled ? '1px solid #1f1f1f' : '1px solid transparent',
-        transition: 'border-color 0.3s',
+        padding: '0 24px',
+        background: scrolled ? 'rgba(15,15,15,0.85)' : 'transparent',
+        backdropFilter: scrolled ? 'blur(12px)' : 'none',
+        borderBottom: scrolled ? `1px solid ${C.borderSubtle}` : '1px solid transparent',
+        transition: 'all 0.3s',
       }}>
-        <Link to="/restaurant" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
+        <Link to="/restaurant#home" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
           <span style={{
-            width: 34, height: 34, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: C.primaryColor, color: C.accentColor, fontFamily: "'Bebas Neue', sans-serif",
-            fontSize: 16, letterSpacing: 1, border: `1px solid ${C.accentColor}`,
+            width: 36, height: 36, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: C.accentRed, color: '#fff', fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 15,
           }}>{C.logoText}</span>
-          <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 20, letterSpacing: 3, color: C.accentColor }}>
-            {C.name.toUpperCase()}
+          <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 19, fontWeight: 700, color: '#fff', letterSpacing: 0.5 }}>
+            {C.name}
           </span>
         </Link>
 
-        <nav style={{ display: 'flex', gap: '4px' }} className="rg-desk">
+        <nav style={{ display: 'flex', gap: '4px' }} className="rg-nav-desk">
           {LINKS.map(({ label, to }) => (
-            <Link key={to} to={to} style={{
-              fontFamily: "'Barlow Condensed', sans-serif", fontSize: 13, letterSpacing: 1.5,
-              textTransform: 'uppercase', textDecoration: 'none', padding: '8px 12px', borderRadius: 4,
-              color: isActive(to) ? C.accentColor : '#888', transition: 'color 0.2s',
-            }}
-              onMouseEnter={e => { if (!isActive(to)) e.target.style.color = '#F5F5F5' }}
-              onMouseLeave={e => { if (!isActive(to)) e.target.style.color = '#888' }}
-            >{label}</Link>
+            <Link key={to} to={to} className="rg-nav-link" style={{
+              fontFamily: "'Inter', sans-serif", fontSize: 13, letterSpacing: 1.5, textTransform: 'uppercase',
+              textDecoration: 'none', padding: '8px 14px', color: linkColor(to), position: 'relative',
+            }}>
+              {label}
+              <span style={{
+                position: 'absolute', left: 14, right: 14, bottom: 2, height: 2, borderRadius: 1,
+                background: C.accentColor, transform: isActive(to) ? 'scaleX(1)' : 'scaleX(0)',
+                transition: 'transform 0.2s', transformOrigin: 'left',
+              }} />
+            </Link>
           ))}
         </nav>
 
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }} className="rg-desk">
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }} className="rg-nav-desk">
           {user ? (
             <>
-              {profile?.role === 'admin' && (
-                <Link to="/restaurant/admin" style={{
-                  fontFamily: "'Barlow Condensed', sans-serif", fontSize: 13, letterSpacing: 1,
-                  textTransform: 'uppercase', textDecoration: 'none', color: '#888',
-                  padding: '8px 12px', border: '1px solid #2a2a2a', borderRadius: 4,
-                }}>Admin</Link>
-              )}
               <Link to="/restaurant/profile" style={{
-                fontFamily: "'Barlow Condensed', sans-serif", fontSize: 13, letterSpacing: 1,
-                textTransform: 'uppercase', textDecoration: 'none', color: C.accentColor,
-                padding: '8px 14px', border: `1px solid ${C.accentColor}55`, borderRadius: 4,
-              }}>◆ Profile</Link>
-              <button onClick={handleSignOut} disabled={leaving} style={{
-                background: 'transparent', border: '1px solid #2a2a2a', borderRadius: 4,
-                fontFamily: "'Barlow Condensed', sans-serif", fontSize: 13, letterSpacing: 2,
-                textTransform: 'uppercase', color: '#555', padding: '8px 16px', cursor: 'pointer', transition: 'all 0.2s',
-              }}
-                onMouseEnter={e => { e.currentTarget.style.color = '#F5F5F5'; e.currentTarget.style.borderColor = '#444' }}
-                onMouseLeave={e => { e.currentTarget.style.color = '#555'; e.currentTarget.style.borderColor = '#2a2a2a' }}
-              >{leaving ? '...' : 'Sign Out'}</button>
+                fontFamily: "'Inter', sans-serif", fontSize: 13, letterSpacing: 1, textTransform: 'uppercase',
+                textDecoration: 'none', color: '#fff', padding: '8px 12px',
+              }}>Profile</Link>
+              <button type="button" onClick={handleSignOut} disabled={leaving} style={{
+                background: 'transparent', border: `1px solid ${C.borderSubtle}`, borderRadius: 100,
+                fontFamily: "'Inter', sans-serif", fontSize: 13, letterSpacing: 1, color: '#aaa',
+                padding: '9px 18px', cursor: 'pointer', transition: 'all 0.2s',
+              }}>{leaving ? '...' : 'Sign Out'}</button>
             </>
           ) : (
             <>
               <Link to="/restaurant/login" style={{
-                fontFamily: "'Barlow Condensed', sans-serif", fontSize: 13, letterSpacing: 1.5,
-                textTransform: 'uppercase', textDecoration: 'none', color: '#888', padding: '8px 12px',
+                fontFamily: "'Inter', sans-serif", fontSize: 13, letterSpacing: 1, textTransform: 'uppercase',
+                textDecoration: 'none', color: '#fff', padding: '8px 12px',
               }}>Sign In</Link>
-              <Link to="/restaurant/register" style={{
-                fontFamily: "'Barlow Condensed', sans-serif", fontSize: 13, fontWeight: 700, letterSpacing: 2,
+              <Link to="/restaurant/register" className="rg-join-btn" style={{
+                fontFamily: "'Inter', sans-serif", fontSize: 13, fontWeight: 700, letterSpacing: 1,
                 textTransform: 'uppercase', textDecoration: 'none', color: '#0A0A0A', background: C.accentColor,
-                padding: '9px 20px', borderRadius: 4, transition: 'opacity 0.2s',
-              }}
-                onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
-                onMouseLeave={e => e.currentTarget.style.opacity = '1'}
-              >Join</Link>
+                padding: '10px 22px', borderRadius: 100, transition: 'transform 0.2s, filter 0.2s',
+              }}>Join</Link>
             </>
           )}
         </div>
 
-        <button onClick={() => setMenuOpen(o => !o)} className="rg-mob" aria-label="Toggle menu" style={{
-          background: 'none', border: 'none', cursor: 'pointer', padding: 8, display: 'flex', flexDirection: 'column', gap: 5,
+        <button onClick={() => setMenuOpen(o => !o)} className="rg-nav-mob" aria-label="Toggle menu" style={{
+          background: 'none', border: 'none', cursor: 'pointer', padding: 8, display: 'flex', flexDirection: 'column', gap: 5, zIndex: 101,
         }}>
           {[0, 1, 2].map(i => (
             <span key={i} style={{
-              display: 'block', width: 22, height: 1.5, background: C.accentColor, transition: 'all 0.3s', transformOrigin: 'center',
-              transform: menuOpen ? (i === 0 ? 'rotate(45deg) translate(4.5px, 4.5px)' : i === 2 ? 'rotate(-45deg) translate(4.5px, -4.5px)' : 'none') : 'none',
+              display: 'block', width: 22, height: 2, borderRadius: 1, background: '#fff', transition: 'all 0.3s', transformOrigin: 'center',
+              transform: menuOpen ? (i === 0 ? 'rotate(45deg) translate(5px, 5px)' : i === 2 ? 'rotate(-45deg) translate(5px, -5px)' : 'none') : 'none',
               opacity: menuOpen && i === 1 ? 0 : 1,
             }} />
           ))}
         </button>
       </header>
 
+      {/* Mobile slide-in from right */}
       {menuOpen && (
-        <div onClick={() => setMenuOpen(false)} style={{
-          position: 'fixed', inset: 0, zIndex: 98, background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)',
-        }} />
+        <div onClick={() => setMenuOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 98, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(3px)' }} />
       )}
-
       <nav style={{
-        position: 'fixed', top: '64px', left: 0, right: 0, zIndex: 99, background: '#111',
-        borderBottom: '1px solid #1f1f1f', padding: 20, transform: menuOpen ? 'translateY(0)' : 'translateY(-110%)',
-        transition: 'transform 0.35s cubic-bezier(0.4,0,0.2,1)', display: 'flex', flexDirection: 'column', gap: 4,
+        position: 'fixed', top: 0, right: 0, bottom: 0, zIndex: 99, width: 'min(82vw, 340px)',
+        background: C.bgSecondary, borderLeft: `1px solid ${C.borderSubtle}`, padding: '90px 28px 28px',
+        transform: menuOpen ? 'translateX(0)' : 'translateX(100%)', transition: 'transform 0.35s cubic-bezier(0.4,0,0.2,1)',
+        display: 'flex', flexDirection: 'column', gap: 6,
       }}>
         {LINKS.map(({ label, to }) => (
           <Link key={to} to={to} style={{
-            fontFamily: "'Bebas Neue', sans-serif", fontSize: 30, letterSpacing: 3, textDecoration: 'none',
-            color: isActive(to) ? C.accentColor : '#F5F5F5', padding: '10px 0', borderBottom: '1px solid #1a1a1a',
+            fontFamily: "'Playfair Display', serif", fontSize: 26, textDecoration: 'none',
+            color: isActive(to) ? C.accentColor : '#fff', padding: '10px 0', borderBottom: `1px solid ${C.borderSubtle}`,
           }}>{label}</Link>
         ))}
-        <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 10 }}>
           {user ? (
             <>
-              {profile?.role === 'admin' && (
-                <Link to="/restaurant/admin" style={{
-                  fontFamily: "'Barlow Condensed', sans-serif", fontSize: 14, letterSpacing: 2, textTransform: 'uppercase',
-                  textDecoration: 'none', color: '#888', padding: '12px 16px', border: '1px solid #222', borderRadius: 4, textAlign: 'center',
-                }}>Admin Dashboard</Link>
-              )}
               <Link to="/restaurant/profile" style={{
-                fontFamily: "'Barlow Condensed', sans-serif", fontSize: 14, letterSpacing: 2, textTransform: 'uppercase',
-                textDecoration: 'none', color: C.accentColor, padding: '12px 16px', border: `1px solid ${C.accentColor}55`, borderRadius: 4, textAlign: 'center',
-              }}>◆ My Profile</Link>
-              <button onClick={handleSignOut} disabled={leaving} style={{
-                fontFamily: "'Barlow Condensed', sans-serif", fontSize: 13, letterSpacing: 2, textTransform: 'uppercase',
-                background: 'transparent', border: '1px solid #2a2a2a', borderRadius: 4, color: '#666', padding: 12, cursor: 'pointer', width: '100%',
+                fontFamily: "'Inter', sans-serif", fontSize: 14, letterSpacing: 1, textTransform: 'uppercase',
+                textDecoration: 'none', color: C.accentColor, padding: '12px 16px', border: `1px solid ${C.borderSubtle}`, borderRadius: 8, textAlign: 'center',
+              }}>My Profile</Link>
+              <button type="button" onClick={handleSignOut} disabled={leaving} style={{
+                fontFamily: "'Inter', sans-serif", fontSize: 13, letterSpacing: 1, textTransform: 'uppercase',
+                background: 'transparent', border: `1px solid ${C.borderSubtle}`, borderRadius: 8, color: '#aaa', padding: 12, cursor: 'pointer', width: '100%',
               }}>{leaving ? 'Signing out...' : 'Sign Out'}</button>
             </>
           ) : (
             <>
               <Link to="/restaurant/login" style={{
-                fontFamily: "'Barlow Condensed', sans-serif", fontSize: 14, letterSpacing: 2, textTransform: 'uppercase',
-                textDecoration: 'none', color: '#888', padding: '12px 16px', border: '1px solid #222', borderRadius: 4, textAlign: 'center',
+                fontFamily: "'Inter', sans-serif", fontSize: 14, letterSpacing: 1, textTransform: 'uppercase',
+                textDecoration: 'none', color: '#fff', padding: '12px 16px', border: `1px solid ${C.borderSubtle}`, borderRadius: 8, textAlign: 'center',
               }}>Sign In</Link>
               <Link to="/restaurant/register" style={{
-                fontFamily: "'Barlow Condensed', sans-serif", fontSize: 14, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase',
-                textDecoration: 'none', color: '#0A0A0A', background: C.accentColor, padding: '12px 16px', borderRadius: 4, textAlign: 'center',
-              }}>Create Account</Link>
+                fontFamily: "'Inter', sans-serif", fontSize: 14, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase',
+                textDecoration: 'none', color: '#0A0A0A', background: C.accentColor, padding: '12px 16px', borderRadius: 8, textAlign: 'center',
+              }}>Join</Link>
             </>
           )}
         </div>
       </nav>
 
       <style>{`
-        .rg-desk { display: flex !important; }
-        .rg-mob  { display: none  !important; }
-        @media (max-width: 768px) {
-          .rg-desk { display: none !important; }
-          .rg-mob  { display: flex !important; }
+        .rg-nav-desk { display: flex !important; }
+        .rg-nav-mob  { display: none  !important; }
+        .rg-nav-link:hover span { transform: scaleX(1) !important; }
+        .rg-join-btn:hover { transform: scale(1.04); filter: brightness(1.1); }
+        @media (max-width: 860px) {
+          .rg-nav-desk { display: none !important; }
+          .rg-nav-mob  { display: flex !important; }
         }
       `}</style>
     </>

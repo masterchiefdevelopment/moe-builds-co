@@ -1,92 +1,86 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { RESTAURANT_CONFIG as C } from '../../pages/restaurant/config'
+import AddOnsDrawer from './AddOnsDrawer'
 
-const LINKS = {
-  Navigate: [
-    { label: 'Home', to: '/restaurant' },
-    { label: 'Menu', to: '/restaurant/menu' },
-    { label: 'Order', to: '/restaurant/order' },
-    { label: 'Gallery', to: '/restaurant/gallery' },
-    { label: 'Visit', to: '/restaurant/location' },
-  ],
-  Account: [
-    { label: 'Sign In', to: '/restaurant/login' },
-    { label: 'Register', to: '/restaurant/register' },
-    { label: 'My Profile', to: '/restaurant/profile' },
-  ],
-}
+const SOCIALS = ['📷', '📘', '🐦']
 
 export default function RestaurantFooter() {
+  const [drawerOpen, setDrawerOpen] = useState(false)
   return (
-    <footer style={{ background: '#0d0d0d', borderTop: '1px solid #1a1a1a', padding: '48px 20px 24px' }}>
+    <footer style={{ background: C.bgSecondary, borderTop: `1px solid ${C.borderSubtle}`, padding: '52px 24px 24px' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 36, marginBottom: 40 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 36, marginBottom: 36 }}>
+
+          {/* Brand */}
           <div>
-            <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 28, letterSpacing: 4, color: C.accentColor, marginBottom: 4 }}>
-              {C.name.toUpperCase()}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+              <span style={{
+                width: 34, height: 34, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: C.accentRed, color: '#fff', fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 14,
+              }}>{C.logoText}</span>
+              <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, fontWeight: 700, color: '#fff' }}>{C.name}</span>
             </div>
-            <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 11, letterSpacing: 2, textTransform: 'uppercase', color: '#444', marginBottom: 16 }}>
-              Mexican Restaurant · San Antonio
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#555' }}>
-                <span style={{ fontSize: 11 }}>📍</span>{C.address}
-              </div>
-              <a href={`tel:${C.phone.replace(/[^\d]/g, '')}`} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#555', textDecoration: 'none' }}>
-                <span style={{ fontSize: 11 }}>📞</span>{C.phone}
-              </a>
+            <p style={{ color: C.textSecondary, fontSize: 13, lineHeight: 1.7, marginBottom: 16 }}>{C.tagline}</p>
+            <div style={{ display: 'flex', gap: 10 }}>
+              {SOCIALS.map((icon, i) => (
+                <span key={i} style={{
+                  width: 34, height: 34, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  border: `1px solid ${C.borderSubtle}`, fontSize: 14, color: C.textSecondary,
+                }}>{icon}</span>
+              ))}
             </div>
           </div>
 
-          {Object.entries(LINKS).map(([title, links]) => (
-            <div key={title}>
-              <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 11, letterSpacing: 3, textTransform: 'uppercase', color: C.accentColor, marginBottom: 16 }}>
-                {title}
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {links.map(({ label, to }) => (
-                  <Link key={to} to={to} style={{ fontSize: 13, color: '#555', textDecoration: 'none', transition: 'color 0.2s' }}
-                    onMouseEnter={e => e.target.style.color = C.accentColor}
-                    onMouseLeave={e => e.target.style.color = '#555'}
-                  >{label}</Link>
-                ))}
-              </div>
-            </div>
-          ))}
-
+          {/* Quick links */}
           <div>
-            <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 11, letterSpacing: 3, textTransform: 'uppercase', color: C.accentColor, marginBottom: 16 }}>
-              Order Now
+            <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, letterSpacing: 2, textTransform: 'uppercase', color: C.accentColor, fontWeight: 600, marginBottom: 16 }}>
+              Quick Links
             </div>
-            <div style={{ background: '#161616', border: '1px solid #222', borderRadius: 8, padding: 20 }}>
-              <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 22, letterSpacing: 2, marginBottom: 8 }}>HUNGRY?</div>
-              <p style={{ fontSize: 12, color: '#555', lineHeight: 1.6, marginBottom: 16 }}>
-                Order ahead for pickup — fresh and ready when you arrive.
-              </p>
-              <Link to="/restaurant/order" style={{
-                display: 'block', textAlign: 'center', background: C.accentColor, color: '#0A0A0A', borderRadius: 4,
-                fontFamily: "'Barlow Condensed', sans-serif", fontSize: 12, fontWeight: 700, letterSpacing: 2,
-                textTransform: 'uppercase', textDecoration: 'none', padding: 10,
-              }}>Order Now →</Link>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {[
+                { label: 'Menu', to: '/restaurant#menu' },
+                { label: 'Order', to: '/restaurant#order' },
+                { label: 'Gallery', to: '/restaurant#gallery' },
+                { label: 'Visit', to: '/restaurant#visit' },
+              ].map(({ label, to }) => (
+                <Link key={to} to={to} style={{ fontSize: 13, color: C.textSecondary, textDecoration: 'none', transition: 'color 0.2s' }}
+                  onMouseEnter={e => e.target.style.color = C.accentColor}
+                  onMouseLeave={e => e.target.style.color = C.textSecondary}
+                >{label}</Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Contact */}
+          <div>
+            <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, letterSpacing: 2, textTransform: 'uppercase', color: C.accentColor, fontWeight: 600, marginBottom: 16 }}>
+              Contact
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 13, color: C.textSecondary }}>
+              <span>📍 {C.address}</span>
+              <a href={`tel:${C.phone.replace(/[^\d]/g, '')}`} style={{ color: C.textSecondary, textDecoration: 'none' }}>📞 {C.phone}</a>
+              <span>✉️ {C.email}</span>
             </div>
           </div>
         </div>
 
-        <div style={{ height: 1, background: `linear-gradient(90deg, transparent, ${C.accentColor}44, transparent)`, marginBottom: 20 }} />
+        <div style={{ height: 1, background: `linear-gradient(90deg, transparent, ${C.borderSubtle}, transparent)`, marginBottom: 20 }} />
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
-          <p style={{ fontSize: 11, color: '#333' }}>
-            © {new Date().getFullYear()} {C.fullName} · All rights reserved
-          </p>
-          <a href="/" style={{
-            fontFamily: "'Barlow Condensed', sans-serif", fontSize: 11, letterSpacing: 2, textTransform: 'uppercase',
-            color: '#333', textDecoration: 'none', transition: 'color 0.2s',
-          }}
-            onMouseEnter={e => e.currentTarget.style.color = C.accentColor}
-            onMouseLeave={e => e.currentTarget.style.color = '#333'}
-          >Powered by Moe Builds Co.</a>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
+          <p style={{ fontSize: 12, color: '#555' }}>© {new Date().getFullYear()} {C.fullName} · All rights reserved</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 18, flexWrap: 'wrap' }}>
+            <button type="button" onClick={() => setDrawerOpen(true)} style={{
+              background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: C.textSecondary,
+              fontFamily: "'Inter', sans-serif", textDecoration: 'underline', textUnderlineOffset: 3,
+            }}>Interested in more features? →</button>
+            <a href="https://moe-builds-co.vercel.app" target="_blank" rel="noopener noreferrer" style={{
+              fontFamily: "'Inter', sans-serif", fontSize: 12, fontWeight: 600, letterSpacing: 1, color: C.accentColor, textDecoration: 'none',
+            }}>Powered by Moe Builds Co.</a>
+          </div>
         </div>
       </div>
+      <AddOnsDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
     </footer>
   )
 }
