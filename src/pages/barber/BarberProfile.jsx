@@ -47,7 +47,7 @@ export default function BarberProfile() {
   })
   const upcoming = withMeta.filter(b => b._date && b._date > now).sort((a, b) => a._date - b._date)
   const past = withMeta.filter(b => !b._date || b._date <= now).sort((a, b) => (b._date || 0) - (a._date || 0))
-  const completedCount = withMeta.filter(b => b._status === 'completed').length
+  const completedCount = withMeta.filter(b => ['completed', 'done'].includes(String(b._status).toLowerCase())).length
   const punches = Math.min(completedCount, PUNCH_GOAL)
 
   const fmt = (d) => d ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' at ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '—'
