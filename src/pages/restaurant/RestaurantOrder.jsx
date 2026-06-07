@@ -82,7 +82,7 @@ export default function RestaurantOrder() {
           </p>
           <p style={{ color: '#999', fontSize: 14 }}>Pickup: {confirmation.pickupTime}</p>
           <p style={{ color: '#999', fontSize: 14, marginBottom: 20 }}>Total: ${confirmation.total.toFixed(2)}</p>
-          <button className="btn-outline" onClick={() => setConfirmation(null)}>Place Another Order</button>
+          <button type="button" className="btn-outline" onClick={() => setConfirmation(null)}>Place Another Order</button>
         </div>
       </div>
     )
@@ -109,7 +109,7 @@ export default function RestaurantOrder() {
                       <div style={{ fontWeight: 600 }}>{item.name}</div>
                       <div style={{ fontSize: 12, color: 'var(--muted)' }}>${item.price.toFixed(2)}</div>
                     </div>
-                    <button className="btn-ghost" onClick={() => addToCart(item)}>+ Add</button>
+                    <button type="button" className="btn-ghost" onClick={() => addToCart(item)}>+ Add</button>
                   </div>
                 ))}
               </div>
@@ -130,11 +130,11 @@ export default function RestaurantOrder() {
                   <div key={c.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
                     <div style={{ fontSize: 13 }}>{c.name}</div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <button onClick={() => changeQty(c.name, -1)} className="btn-ghost" style={{ padding: '2px 9px' }}>−</button>
+                      <button type="button" onClick={() => changeQty(c.name, -1)} className="btn-ghost" style={{ padding: '2px 9px' }}>−</button>
                       <span style={{ fontSize: 13, minWidth: 16, textAlign: 'center' }}>{c.qty}</span>
-                      <button onClick={() => changeQty(c.name, 1)} className="btn-ghost" style={{ padding: '2px 9px' }}>+</button>
+                      <button type="button" onClick={() => changeQty(c.name, 1)} className="btn-ghost" style={{ padding: '2px 9px' }}>+</button>
                       <span style={{ fontSize: 13, minWidth: 50, textAlign: 'right', color: C.accentColor }}>${(c.price * c.qty).toFixed(2)}</span>
-                      <button onClick={() => removeFromCart(c.name)} style={{ background: 'none', border: 'none', color: '#555', cursor: 'pointer', fontSize: 14 }}>✕</button>
+                      <button type="button" onClick={() => removeFromCart(c.name)} style={{ background: 'none', border: 'none', color: '#555', cursor: 'pointer', fontSize: 14 }}>✕</button>
                     </div>
                   </div>
                 ))}

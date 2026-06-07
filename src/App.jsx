@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { supabase } from './lib/supabase'
 import { useAuthStore } from './store/authStore'
+import ScrollToTop from './components/ScrollToTop'
 
 // ── Barber demo (unchanged) ──────────────────────────────────
 import Nav from './components/Nav'
@@ -123,6 +124,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Toaster
         position="bottom-right"
         toastOptions={{

@@ -101,7 +101,7 @@ export default function RestaurantAdmin() {
                     Pickup {o.pickup_time} · ${Number(o.total).toFixed(2)} · {new Date(o.created_at).toLocaleString()}
                   </div>
                 </div>
-                <button onClick={() => toggleStatus(o)} className="btn-ghost" style={{
+                <button type="button" onClick={() => toggleStatus(o)} className="btn-ghost" style={{
                   borderColor: o.status === 'completed' ? `${C.accentColor}55` : undefined,
                   color: o.status === 'completed' ? C.accentColor : undefined,
                 }}>
