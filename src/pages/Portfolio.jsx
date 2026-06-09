@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 const css = `
-:root {
+.mbc-page {
   --gold: #F5A623;
   --gold-light: #FFD700;
   --bg: #080808;
@@ -12,10 +12,12 @@ const css = `
   --text-dim: #3a3a3a;
   --green: #22C55E;
   --red: #EF4444;
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  min-height: 100vh;
 }
-* { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
 
 /* ── NAV ─────────────────────────────────────────────── */
 nav {
@@ -355,6 +357,39 @@ input[type=range]::-webkit-slider-thumb {
 .reveal { opacity: 0; transform: translateY(26px); transition: opacity .65s ease, transform .65s ease; }
 .reveal.visible { opacity: 1; transform: translateY(0); }
 .d1 { transition-delay: .1s; } .d2 { transition-delay: .2s; } .d3 { transition-delay: .3s; }
+
+/* ── RESPONSIVE ─────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .demos-grid { grid-template-columns: repeat(2,1fr); }
+  .pricing-grid { grid-template-columns: repeat(2,1fr); }
+  .process-grid { grid-template-columns: 1fr; }
+  .roi-inner { gap: 48px; }
+}
+@media (max-width: 768px) {
+  nav { padding: 16px 20px; }
+  .nav-links { display: none; }
+  .hero { padding: 80px 20px 0; }
+  .hero h1 { font-size: clamp(42px, 12vw, 72px); letter-spacing: -2px; }
+  .hero-sub { font-size: 16px; }
+  .trust-bar { padding: 14px 20px; }
+  .stats-wrap { padding: 60px 20px; }
+  .stats-grid { grid-template-columns: repeat(2,1fr); }
+  .div { margin: 0 20px; }
+  .demos-wrap { padding: 80px 20px; }
+  .demos-header { flex-direction: column; align-items: flex-start; gap: 24px; }
+  .demos-grid { grid-template-columns: 1fr; }
+  .roi-inner { padding: 80px 20px; grid-template-columns: 1fr; gap: 40px; }
+  .process-wrap { padding: 80px 20px; }
+  .process-grid { grid-template-columns: 1fr; }
+  .pricing-wrap { padding: 80px 20px; }
+  .pricing-grid { grid-template-columns: 1fr; }
+  .cta-wrap { padding: 60px 20px 100px; }
+  .cta-box { padding: 60px 28px; }
+  .cta-box h2 { letter-spacing: -1.5px; }
+  .footer-inner { flex-direction: column; gap: 28px; text-align: center; padding: 40px 20px; }
+  .f-right { text-align: center; }
+  .founder-section { grid-template-columns: 1fr !important; gap: 32px !important; padding: 36px 24px !important; }
+}
 `;
 
 const fmt = n => '$' + n.toLocaleString();
@@ -407,7 +442,7 @@ export default function Portfolio() {
   }, []);
 
   return (
-    <>
+    <div className="mbc-page">
       <style>{css}</style>
 
       {/* NAV */}
@@ -582,7 +617,7 @@ export default function Portfolio() {
 
       {/* FOUNDER */}
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '80px 60px 0' }}>
-        <div className="reveal" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '60px', alignItems: 'center', background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '20px', padding: '56px 60px' }}>
+        <div className="reveal founder-section" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '60px', alignItems: 'center', background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '20px', padding: '56px 60px' }}>
           <div style={{ textAlign: 'center' }}>
             <img
               src="/founder.png"
@@ -987,6 +1022,6 @@ export default function Portfolio() {
         </div>
         <div className="f-right">© 2024 Moe Builds Co.<br />San Antonio, Texas 🤘</div>
       </div>
-    </>
+    </div>
   );
 }
