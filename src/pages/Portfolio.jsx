@@ -173,122 +173,63 @@ nav {
   box-shadow: 0 24px 60px rgba(0,0,0,.6), 0 0 0 1px rgba(245,166,35,.06);
 }
 
-/* ── DEMO CARD PREVIEWS (mini website mockups) ───────── */
-.demo-preview {
-  aspect-ratio: 16/10; position: relative; overflow: hidden;
-  font-family: 'Inter', sans-serif;
+/* ── DEMO CARD COVERS ────────────────────────────────── */
+.demo-cover {
+  height: 240px; position: relative; overflow: hidden;
+  display: flex; flex-direction: column; justify-content: space-between;
+  padding: 20px 22px 18px;
 }
-
-/* Browser chrome */
-.browser-bar {
-  position: absolute; top: 0; left: 0; right: 0; height: 26px; z-index: 10;
-  background: rgba(0,0,0,.6); display: flex; align-items: center; padding: 0 10px; gap: 5px;
-}
-.bdot { width: 7px; height: 7px; border-radius: 50%; }
-.bdot:nth-child(1){background:#FF5F57} .bdot:nth-child(2){background:#FEBC2E} .bdot:nth-child(3){background:#28C840}
-.burl { flex: 1; margin: 0 10px; height: 14px; background: rgba(255,255,255,.07); border-radius: 3px; font-size: 9px; color: #444; display: flex; align-items: center; padding: 0 8px; }
-
-/* DEMO CARD shimmer sweep on hover */
+/* shimmer sweep on hover */
 .demo-card::before {
-  content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
-  background: linear-gradient(90deg, transparent 0%, rgba(245,166,35,0.04) 50%, transparent 100%);
-  z-index: 5; transition: left .55s ease; pointer-events: none;
+  content: ''; position: absolute; top: 0; left: -100%; width: 55%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(245,166,35,0.05), transparent);
+  z-index: 5; transition: left .6s ease; pointer-events: none;
 }
 .demo-card:hover::before { left: 150%; }
-/* URL bar edge fade */
-.burl { mask-image: linear-gradient(90deg, black 70%, transparent 100%); }
 
-/* RESTAURANT MOCKUP */
-.mock-restaurant {
-  background: linear-gradient(160deg, #0e0400 0%, #1a0800 50%, #0f0300 100%);
-  width: 100%; height: 100%; padding-top: 26px; box-sizing: border-box; overflow: hidden;
+.dc-top { display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; }
+.dc-brand { font-size: 12px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; }
+.dc-badge { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; display: flex; align-items: center; gap: 5px; }
+.dc-mid { position: relative; z-index: 2; }
+.dc-icon { font-size: 38px; margin-bottom: 10px; display: block; }
+.dc-h { font-size: 24px; font-weight: 900; line-height: 1.1; letter-spacing: -.6px; color: #fff; }
+.dc-sub { font-size: 11px; margin-top: 6px; opacity: 0.45; line-height: 1.4; }
+.dc-pills { display: flex; gap: 7px; flex-wrap: wrap; position: relative; z-index: 2; }
+.dc-pill { font-size: 11px; font-weight: 600; padding: 4px 12px; border-radius: 20px; white-space: nowrap; }
+/* glow orb */
+.dc-glow {
+  position: absolute; bottom: -60px; right: -40px; width: 200px; height: 200px;
+  border-radius: 50%; pointer-events: none; z-index: 0;
 }
-.mr-nav {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 6px 12px; border-bottom: 1px solid rgba(245,166,35,.12);
-}
-.mr-logo { font-size: 8px; font-weight: 800; color: var(--gold); letter-spacing: .5px; text-transform: uppercase; }
-.mr-nav-links { display: flex; gap: 8px; }
-.mr-nav-links span { font-size: 7px; color: rgba(255,255,255,.4); font-weight: 500; }
-.mr-hero { padding: 10px 12px 8px; }
-.mr-eyebrow { font-size: 6px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 4px; }
-.mr-h1 { font-size: 14px; font-weight: 900; color: #fff; letter-spacing: -.5px; line-height: 1.1; margin-bottom: 3px; }
-.mr-sub { font-size: 7px; color: rgba(255,255,255,.45); margin-bottom: 8px; }
-.mr-btns { display: flex; gap: 6px; margin-bottom: 10px; }
-.mr-btn-main { background: var(--gold); color: #000; font-size: 7px; font-weight: 800; padding: 5px 10px; border-radius: 4px; }
-.mr-btn-sec { border: 1px solid rgba(255,255,255,.15); color: rgba(255,255,255,.6); font-size: 7px; font-weight: 600; padding: 5px 10px; border-radius: 4px; }
-.mr-menu-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 5px; padding: 0 12px; }
-.mr-menu-item { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07); border-radius: 5px; padding: 6px; position: relative; }
-.mr-menu-item:first-child::after { content: '★ Popular'; position: absolute; top: 3px; right: 3px; font-size: 5px; font-weight: 800; color: #000; background: var(--gold); padding: 1px 4px; border-radius: 2px; letter-spacing: .3px; }
-.mr-item-img { height: 24px; background: linear-gradient(135deg, rgba(245,166,35,.25), rgba(200,80,20,.15)); border-radius: 3px; margin-bottom: 4px; position: relative; overflow: hidden; }
-.mr-item-img::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.08) 50%, transparent 100%); background-size: 200% 100%; animation: imgShimmer 2.2s ease-in-out infinite; }
-@keyframes imgShimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
-.mr-item-name { font-size: 6px; font-weight: 700; color: rgba(255,255,255,.8); margin-bottom: 2px; }
-.mr-item-price { font-size: 6px; color: var(--gold); font-weight: 700; }
-.mr-bar { display: flex; gap: 10px; padding: 6px 12px; border-top: 1px solid rgba(255,255,255,.04); margin-top: 6px; }
-.mr-bar-item { display: flex; align-items: center; gap: 3px; font-size: 6px; color: rgba(255,255,255,.3); }
 
-/* FOOD TRUCK MOCKUP */
-.mock-foodtruck {
-  background: linear-gradient(160deg, #020410 0%, #050820 50%, #030615 100%);
-  width: 100%; height: 100%; padding-top: 26px; box-sizing: border-box; overflow: hidden;
-}
-.mf-nav {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 6px 12px; border-bottom: 1px solid rgba(100,100,255,.1);
-}
-.mf-logo { font-size: 8px; font-weight: 800; color: #7C9FFF; letter-spacing: .5px; text-transform: uppercase; }
-.mf-live { display: flex; align-items: center; gap: 4px; }
-.mf-live-dot { width: 5px; height: 5px; border-radius: 50%; background: #22C55E; animation: pulse 1.5s ease-in-out infinite; box-shadow: 0 0 6px rgba(34,197,94,.7); }
-.mf-live-text { font-size: 7px; color: #22C55E; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
-.mf-location { padding: 7px 12px; background: rgba(34,197,94,.07); border-bottom: 1px solid rgba(34,197,94,.1); display: flex; align-items: center; gap: 5px; }
-.mf-pin { font-size: 9px; }
-.mf-loc-text { font-size: 7px; font-weight: 700; color: rgba(255,255,255,.8); }
-.mf-hero { padding: 8px 12px; }
-.mf-h1 { font-size: 13px; font-weight: 900; color: #fff; letter-spacing: -.5px; line-height: 1.1; margin-bottom: 3px; }
-.mf-sub { font-size: 7px; color: rgba(255,255,255,.4); margin-bottom: 8px; }
-.mf-menu { display: grid; grid-template-columns: repeat(2,1fr); gap: 5px; padding: 0 12px; }
-.mf-item { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07); border-radius: 5px; padding: 7px 8px; display: flex; justify-content: space-between; align-items: flex-start; }
-.mf-item-info {}
-.mf-item-name { font-size: 7px; font-weight: 700; color: rgba(255,255,255,.85); margin-bottom: 2px; }
-.mf-item-desc { font-size: 6px; color: rgba(255,255,255,.35); }
-.mf-item-price { font-size: 8px; font-weight: 800; color: #7C9FFF; }
-.mf-btn-row { padding: 8px 12px 0; }
-.mf-btn { background: #7C9FFF; color: #000; font-size: 7px; font-weight: 800; padding: 6px 0; border-radius: 4px; width: 100%; text-align: center; display: block; }
+/* RESTAURANT COVER */
+.cover-restaurant { background: linear-gradient(145deg, #1c0700 0%, #2e1100 45%, #0e0300 100%); }
+.cover-restaurant .dc-brand { color: #F5A623; }
+.cover-restaurant .dc-badge { background: rgba(245,166,35,.12); color: #F5A623; border: 1px solid rgba(245,166,35,.22); }
+.cover-restaurant .dc-pill { background: rgba(245,166,35,.08); color: rgba(255,255,255,.6); border: 1px solid rgba(245,166,35,.16); }
+.cover-restaurant .dc-glow { background: radial-gradient(ellipse, rgba(245,100,20,.3) 0%, transparent 70%); }
 
-/* BARBER MOCKUP */
-.mock-barber {
-  background: linear-gradient(160deg, #010d02 0%, #031005 50%, #020b02 100%);
-  width: 100%; height: 100%; padding-top: 26px; box-sizing: border-box; overflow: hidden;
-}
-.mb-nav {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 6px 12px; border-bottom: 1px solid rgba(34,197,94,.1);
-}
-.mb-logo { font-size: 8px; font-weight: 800; color: #22C55E; letter-spacing: 1px; text-transform: uppercase; }
-.mb-hero { padding: 10px 12px 8px; }
-.mb-eyebrow { font-size: 6px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #22C55E; margin-bottom: 3px; }
-.mb-h1 { font-size: 13px; font-weight: 900; color: #fff; letter-spacing: -.5px; line-height: 1.1; margin-bottom: 3px; }
-.mb-sub { font-size: 7px; color: rgba(255,255,255,.4); margin-bottom: 8px; }
-.mb-avail { display: flex; align-items: center; gap: 4px; background: rgba(34,197,94,.07); border: 1px solid rgba(34,197,94,.15); border-radius: 4px; padding: 4px 8px; margin-bottom: 8px; display: inline-flex; }
-.mb-avail-dot { width: 5px; height: 5px; background: #22C55E; border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
-.mb-avail-text { font-size: 6px; font-weight: 700; color: #22C55E; }
-.mb-barbers { display: grid; grid-template-columns: repeat(3,1fr); gap: 5px; padding: 0 12px; }
-.mb-barber { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07); border-radius: 5px; padding: 7px; text-align: center; }
-.mb-book-btn { background: #22C55E; color: #000; font-size: 6px; font-weight: 800; padding: 4px 8px; border-radius: 3px; animation: bookGlow 2.5s ease-in-out infinite; }
-@keyframes bookGlow { 0%,100%{box-shadow:0 0 4px rgba(34,197,94,.4)} 50%{box-shadow:0 0 10px rgba(34,197,94,.75)} }
-.mb-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, rgba(34,197,94,.22), rgba(34,197,94,.06)); margin: 0 auto 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; box-shadow: 0 0 8px rgba(34,197,94,.2); }
-.mb-name { font-size: 6px; font-weight: 700; color: rgba(255,255,255,.8); margin-bottom: 2px; }
-.mb-role { font-size: 5px; color: rgba(255,255,255,.35); }
-.mb-services { display: flex; gap: 4px; padding: 7px 12px 0; flex-wrap: wrap; }
-.mb-service { background: rgba(34,197,94,.06); border: 1px solid rgba(34,197,94,.12); border-radius: 3px; font-size: 6px; color: rgba(255,255,255,.5); padding: 3px 6px; }
+/* FOOD TRUCK COVER */
+.cover-foodtruck { background: linear-gradient(145deg, #020510 0%, #070d28 45%, #020410 100%); }
+.cover-foodtruck .dc-brand { color: #7C9FFF; }
+.cover-foodtruck .dc-badge { background: rgba(34,197,94,.12); color: #22C55E; border: 1px solid rgba(34,197,94,.28); }
+.cover-foodtruck .dc-pill { background: rgba(124,159,255,.08); color: rgba(255,255,255,.6); border: 1px solid rgba(124,159,255,.16); }
+.cover-foodtruck .dc-glow { background: radial-gradient(ellipse, rgba(50,100,255,.25) 0%, transparent 70%); }
+.live-dot { width: 6px; height: 6px; border-radius: 50%; background: #22C55E; animation: pulse 1.5s ease-in-out infinite; box-shadow: 0 0 6px #22C55E; flex-shrink: 0; }
+
+/* BARBER COVER */
+.cover-barber { background: linear-gradient(145deg, #010d02 0%, #041508 45%, #020c03 100%); }
+.cover-barber .dc-brand { color: #22C55E; }
+.cover-barber .dc-badge { background: rgba(34,197,94,.12); color: #22C55E; border: 1px solid rgba(34,197,94,.25); }
+.cover-barber .dc-pill { background: rgba(34,197,94,.07); color: rgba(255,255,255,.6); border: 1px solid rgba(34,197,94,.14); }
+.cover-barber .dc-glow { background: radial-gradient(ellipse, rgba(20,180,60,.22) 0%, transparent 70%); }
 
 /* DEMO CARD BODY */
-.demo-body { padding: 22px 24px; }
-.demo-tag { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); background: rgba(245,166,35,.1); padding: 4px 10px; border-radius: 4px; margin-bottom: 12px; }
-.demo-title { font-size: 21px; font-weight: 700; color: #fff; margin-bottom: 8px; letter-spacing: -.5px; }
-.demo-desc { font-size: 14px; color: var(--text-muted); line-height: 1.5; margin-bottom: 20px; }
-.demo-link { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--gold); transition: gap .2s; }
+.demo-body { padding: 20px 22px; border-top: 1px solid var(--border); }
+.demo-tag { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); background: rgba(245,166,35,.1); padding: 4px 10px; border-radius: 4px; margin-bottom: 10px; }
+.demo-title { font-size: 26px; font-weight: 900; color: #fff; margin-bottom: 6px; letter-spacing: -.8px; line-height: 1.05; }
+.demo-desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px; }
+.demo-link { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--gold); transition: gap .2s; letter-spacing: .3px; }
 .demo-card:hover .demo-link { gap: 10px; }
 
 /* ── ROI CALCULATOR ──────────────────────────────────── */
@@ -432,8 +373,11 @@ input[type=range]::-webkit-slider-thumb {
   .demos-wrap { padding: 48px 16px; }
   .demos-header { flex-direction: column; align-items: flex-start; gap: 16px; margin-bottom: 28px; }
   .demos-grid { grid-template-columns: 1fr; gap: 16px; }
-  .demo-preview { aspect-ratio: unset; height: 200px; }
-  .demo-body { padding: 16px 18px; }
+  .demo-cover { height: 190px; padding: 16px 18px 14px; }
+  .dc-h { font-size: 19px; }
+  .dc-icon { font-size: 28px; margin-bottom: 6px; }
+  .dc-pill { font-size: 10px; padding: 3px 9px; }
+  .demo-body { padding: 14px 16px; }
   .demo-title { font-size: 17px; }
   .demo-desc { font-size: 13px; margin-bottom: 12px; }
 
@@ -521,74 +465,87 @@ export default function Portfolio() {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     let animId;
-    const GOLD = '245,166,35';
-    const CYAN = '0,210,255';
-    const NODE_COUNT = typeof window !== 'undefined' && window.innerWidth < 768 ? 38 : 65;
-    const CONNECT_DIST = 170;
+    const bolts = [];
+    let nextBolt = 0;
 
-    const nodes = [];
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
+    const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
     resize();
     window.addEventListener('resize', resize);
 
-    for (let i = 0; i < NODE_COUNT; i++) {
-      nodes.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 0.45,
-        vy: (Math.random() - 0.5) * 0.45,
-        r: Math.random() * 1.8 + 0.8,
-        pulse: Math.random() * Math.PI * 2,
-        isHot: Math.random() < 0.18,
-      });
+    function jitteredPath(x1, y1, x2, y2, steps, spread) {
+      const pts = [[x1, y1]];
+      for (let i = 1; i < steps; i++) {
+        const t = i / steps;
+        pts.push([
+          x1 + (x2 - x1) * t + (Math.random() - 0.5) * spread,
+          y1 + (y2 - y1) * t + (Math.random() - 0.5) * spread,
+        ]);
+      }
+      pts.push([x2, y2]);
+      return pts;
     }
 
-    const draw = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      nodes.forEach(n => {
-        n.x += n.vx; n.y += n.vy; n.pulse += 0.018;
-        if (n.x < 0 || n.x > canvas.width) n.vx *= -1;
-        if (n.y < 0 || n.y > canvas.height) n.vy *= -1;
-      });
-      for (let i = 0; i < nodes.length; i++) {
-        for (let j = i + 1; j < nodes.length; j++) {
-          const dx = nodes[i].x - nodes[j].x;
-          const dy = nodes[i].y - nodes[j].y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < CONNECT_DIST) {
-            const a = (1 - dist / CONNECT_DIST) * 0.18;
-            ctx.beginPath();
-            ctx.strokeStyle = `rgba(${GOLD},${a})`;
-            ctx.lineWidth = 0.7;
-            ctx.moveTo(nodes[i].x, nodes[i].y); ctx.lineTo(nodes[j].x, nodes[j].y);
-            ctx.stroke();
-          }
-        }
+    function spawnBolt() {
+      const w = canvas.width, h = canvas.height;
+      const edge = Math.floor(Math.random() * 4);
+      let x1, y1;
+      if (edge === 0) { x1 = Math.random() * w; y1 = 0; }
+      else if (edge === 1) { x1 = w; y1 = Math.random() * h; }
+      else if (edge === 2) { x1 = Math.random() * w; y1 = h; }
+      else { x1 = 0; y1 = Math.random() * h; }
+      const x2 = w * 0.15 + Math.random() * w * 0.7;
+      const y2 = h * 0.15 + Math.random() * h * 0.7;
+      const main = jitteredPath(x1, y1, x2, y2, 9, 110);
+      const branches = [];
+      const nb = 1 + Math.floor(Math.random() * 3);
+      for (let b = 0; b < nb; b++) {
+        const si = 2 + Math.floor(Math.random() * (main.length - 4));
+        const [bx, by] = main[si];
+        const prev = main[si - 1];
+        const angle = Math.atan2(by - prev[1], bx - prev[0]) + (Math.random() - 0.5) * 1.3;
+        const len = 50 + Math.random() * 130;
+        branches.push(jitteredPath(bx, by, bx + Math.cos(angle) * len, by + Math.sin(angle) * len, 5, 28));
       }
-      nodes.forEach(n => {
-        const glow = (Math.sin(n.pulse) + 1) / 2;
-        const a = 0.25 + glow * 0.55;
-        const r = n.r + glow * 1.8;
-        const color = n.isHot ? GOLD : GOLD;
-        const grad = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, r * 5);
-        grad.addColorStop(0, `rgba(${color},${a * 0.7})`);
-        grad.addColorStop(1, `rgba(${color},0)`);
-        ctx.beginPath(); ctx.fillStyle = grad;
-        ctx.arc(n.x, n.y, r * 5, 0, Math.PI * 2); ctx.fill();
-        ctx.beginPath(); ctx.fillStyle = `rgba(${color},${a})`;
-        ctx.arc(n.x, n.y, r, 0, Math.PI * 2); ctx.fill();
-        if (n.isHot && glow > 0.7) {
-          ctx.beginPath();
-          ctx.strokeStyle = `rgba(${CYAN},${(glow - 0.7) * 0.25})`;
-          ctx.lineWidth = 1; ctx.arc(n.x, n.y, r * 8, 0, Math.PI * 2); ctx.stroke();
-        }
-      });
+      bolts.push({ main, branches, alpha: 0.52, decay: 0.024 + Math.random() * 0.012 });
+    }
+
+    function stroke(pts, alpha, width) {
+      if (pts.length < 2) return;
+      ctx.beginPath();
+      ctx.moveTo(pts[0][0], pts[0][1]);
+      for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+      ctx.shadowBlur = 14;
+      ctx.shadowColor = `rgba(245,150,20,${alpha * 0.55})`;
+      ctx.strokeStyle = `rgba(255,185,60,${alpha * 0.38})`;
+      ctx.lineWidth = width * 2.8;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(pts[0][0], pts[0][1]);
+      for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+      ctx.shadowBlur = 5;
+      ctx.shadowColor = `rgba(255,230,140,${alpha})`;
+      ctx.strokeStyle = `rgba(255,235,160,${alpha})`;
+      ctx.lineWidth = width;
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+    }
+
+    const draw = (ts) => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (ts > nextBolt) {
+        spawnBolt();
+        nextBolt = ts + 1800 + Math.random() * 2400;
+      }
+      for (let i = bolts.length - 1; i >= 0; i--) {
+        const b = bolts[i];
+        stroke(b.main, b.alpha, 1.1);
+        b.branches.forEach(br => stroke(br, b.alpha * 0.55, 0.65));
+        b.alpha -= b.decay;
+        if (b.alpha <= 0) bolts.splice(i, 1);
+      }
       animId = requestAnimationFrame(draw);
     };
-    draw();
+    animId = requestAnimationFrame(draw);
     return () => { cancelAnimationFrame(animId); window.removeEventListener('resize', resize); };
   }, []);
 
@@ -752,174 +709,82 @@ export default function Portfolio() {
 
           {/* RESTAURANT */}
           <a href="https://moe-builds-co.vercel.app/restaurant" target="_blank" rel="noreferrer" className="demo-card reveal" data-t="restaurant">
-            <div className="demo-preview">
-              <div className="browser-bar">
-                <div className="bdot"></div><div className="bdot"></div><div className="bdot"></div>
-                <div className="burl">moe-builds-co.vercel.app/restaurant</div>
+            <div className="demo-cover cover-restaurant">
+              <div className="dc-glow"></div>
+              <div className="dc-top">
+                <span className="dc-brand">La Mesa Cocina</span>
+                <span className="dc-badge">⭐ 4.9 · 240 reviews</span>
               </div>
-              <div className="mock-restaurant">
-                <div className="mr-nav">
-                  <div className="mr-logo">La Mesa Cocina</div>
-                  <div className="mr-nav-links">
-                    <span>Menu</span><span>Order</span><span>Reservations</span>
-                  </div>
-                </div>
-                <div className="mr-hero">
-                  <div className="mr-eyebrow">Authentic Mexican · SA Owned</div>
-                  <div className="mr-h1">Order Direct.<br />Keep It Local.</div>
-                  <div className="mr-sub">No third-party fees. Straight from our kitchen to your door.</div>
-                  <div className="mr-btns">
-                    <div className="mr-btn-main">Order Online Now</div>
-                    <div className="mr-btn-sec">View Menu</div>
-                  </div>
-                </div>
-                <div className="mr-menu-row">
-                  <div className="mr-menu-item">
-                    <div className="mr-item-img"></div>
-                    <div className="mr-item-name">Enchiladas Verdes</div>
-                    <div className="mr-item-price">$12.99</div>
-                  </div>
-                  <div className="mr-menu-item">
-                    <div className="mr-item-img"></div>
-                    <div className="mr-item-name">Carne Guisada Plate</div>
-                    <div className="mr-item-price">$14.99</div>
-                  </div>
-                  <div className="mr-menu-item">
-                    <div className="mr-item-img"></div>
-                    <div className="mr-item-name">Tamales — Dozen</div>
-                    <div className="mr-item-price">$16.99</div>
-                  </div>
-                </div>
-                <div className="mr-bar">
-                  <div className="mr-bar-item">⭐ 4.9 (240 reviews)</div>
-                  <div className="mr-bar-item">📍 San Antonio, TX</div>
-                  <div className="mr-bar-item">🕐 Open Now</div>
-                </div>
+              <div className="dc-mid">
+                <span className="dc-icon">🍽️</span>
+                <div className="dc-h">Order Direct.<br/>Keep It Local.</div>
+                <div className="dc-sub">No third-party fees · Authentic Mexican · SA Owned</div>
+              </div>
+              <div className="dc-pills">
+                <div className="dc-pill">0% Platform Fees</div>
+                <div className="dc-pill">Online Ordering</div>
+                <div className="dc-pill">Reservations</div>
               </div>
             </div>
             <div className="demo-body">
               <span className="demo-tag">Restaurant</span>
               <div className="demo-title">Full-Service Restaurant</div>
               <div className="demo-desc">Online ordering, menus, reservations &amp; direct payment — zero platform fees.</div>
-              <div className="demo-link">View Live Demo <span>→</span></div>
+              <div className="demo-link">View Live Demo →</div>
             </div>
           </a>
 
           {/* FOOD TRUCK */}
           <a href="https://moe-builds-co.vercel.app/foodtruck" target="_blank" rel="noreferrer" className="demo-card reveal d1" data-t="foodtruck">
-            <div className="demo-preview">
-              <div className="browser-bar">
-                <div className="bdot"></div><div className="bdot"></div><div className="bdot"></div>
-                <div className="burl">moe-builds-co.vercel.app/foodtruck</div>
+            <div className="demo-cover cover-foodtruck">
+              <div className="dc-glow"></div>
+              <div className="dc-top">
+                <span className="dc-brand">El Jefe Tacos</span>
+                <span className="dc-badge"><span className="live-dot"></span>Live Now</span>
               </div>
-              <div className="mock-foodtruck">
-                <div className="mf-nav">
-                  <div className="mf-logo">El Jefe Tacos</div>
-                  <div className="mf-live"><div className="mf-live-dot"></div><div className="mf-live-text">Live</div></div>
-                </div>
-                <div className="mf-location">
-                  <div className="mf-pin">📍</div>
-                  <div className="mf-loc-text">Now Serving: The Pearl District · Next: Southtown 6PM</div>
-                </div>
-                <div className="mf-hero">
-                  <div className="mf-h1">Pre-Order &amp;<br />Skip the Line</div>
-                  <div className="mf-sub">Track us live. Order ahead. Pick up ready.</div>
-                </div>
-                <div className="mf-menu">
-                  <div className="mf-item">
-                    <div className="mf-item-info">
-                      <div className="mf-item-name">Birria Tacos (3)</div>
-                      <div className="mf-item-desc">Consommé included</div>
-                    </div>
-                    <div className="mf-item-price">$13</div>
-                  </div>
-                  <div className="mf-item">
-                    <div className="mf-item-info">
-                      <div className="mf-item-name">Al Pastor Plate</div>
-                      <div className="mf-item-desc">Rice, beans, tortillas</div>
-                    </div>
-                    <div className="mf-item-price">$11</div>
-                  </div>
-                  <div className="mf-item">
-                    <div className="mf-item-info">
-                      <div className="mf-item-name">Elote Cup</div>
-                      <div className="mf-item-desc">Street style</div>
-                    </div>
-                    <div className="mf-item-price">$5</div>
-                  </div>
-                  <div className="mf-item">
-                    <div className="mf-item-info">
-                      <div className="mf-item-name">Agua Fresca</div>
-                      <div className="mf-item-desc">Horchata / Jamaica</div>
-                    </div>
-                    <div className="mf-item-price">$4</div>
-                  </div>
-                </div>
-                <div className="mf-btn-row">
-                  <div className="mf-btn">Pre-Order Now →</div>
-                </div>
+              <div className="dc-mid">
+                <span className="dc-icon">🚚</span>
+                <div className="dc-h">Pre-Order &amp;<br/>Skip the Line</div>
+                <div className="dc-sub">📍 Now at The Pearl District · Next: Southtown 6PM</div>
+              </div>
+              <div className="dc-pills">
+                <div className="dc-pill">Live Location</div>
+                <div className="dc-pill">Pre-Order</div>
+                <div className="dc-pill">Loyalty Rewards</div>
               </div>
             </div>
             <div className="demo-body">
               <span className="demo-tag">Food Truck</span>
               <div className="demo-title">Food Truck Hub</div>
               <div className="demo-desc">Live location, pre-orders, schedule &amp; loyalty — built for the road.</div>
-              <div className="demo-link">View Live Demo <span>→</span></div>
+              <div className="demo-link">View Live Demo →</div>
             </div>
           </a>
 
           {/* BARBER */}
           <a href="https://moe-builds-co.vercel.app/barber" target="_blank" rel="noreferrer" className="demo-card reveal d2" data-t="barber">
-            <div className="demo-preview">
-              <div className="browser-bar">
-                <div className="bdot"></div><div className="bdot"></div><div className="bdot"></div>
-                <div className="burl">moe-builds-co.vercel.app/barber</div>
+            <div className="demo-cover cover-barber">
+              <div className="dc-glow"></div>
+              <div className="dc-top">
+                <span className="dc-brand">Kings Fade SA</span>
+                <span className="dc-badge">● Open Now</span>
               </div>
-              <div className="mock-barber">
-                <div className="mb-nav">
-                  <div className="mb-logo">Kings Fade SA</div>
-                  <div className="mb-book-btn">Book Now</div>
-                </div>
-                <div className="mb-hero">
-                  <div className="mb-eyebrow">San Antonio's Best Cuts</div>
-                  <div className="mb-h1">Your Chair.<br />Your Style.</div>
-                  <div className="mb-sub">Book online in 30 seconds. No calls, no waiting.</div>
-                  <div className="mb-avail">
-                    <div className="mb-avail-dot"></div>
-                    <div className="mb-avail-text">Next Available: Today @ 2:30 PM</div>
-                  </div>
-                </div>
-                <div className="mb-barbers">
-                  <div className="mb-barber">
-                    <div className="mb-avatar">✂️</div>
-                    <div className="mb-name">Marcus R.</div>
-                    <div className="mb-role">Senior Barber</div>
-                  </div>
-                  <div className="mb-barber">
-                    <div className="mb-avatar">💈</div>
-                    <div className="mb-name">Tony V.</div>
-                    <div className="mb-role">Fade Specialist</div>
-                  </div>
-                  <div className="mb-barber">
-                    <div className="mb-avatar">🪒</div>
-                    <div className="mb-name">Rico M.</div>
-                    <div className="mb-role">Beard &amp; Taper</div>
-                  </div>
-                </div>
-                <div className="mb-services">
-                  <div className="mb-service">Regular Cut</div>
-                  <div className="mb-service">Skin Fade</div>
-                  <div className="mb-service">Beard Trim</div>
-                  <div className="mb-service">Hot Towel Shave</div>
-                  <div className="mb-service">Kids Cut</div>
-                </div>
+              <div className="dc-mid">
+                <span className="dc-icon">✂️</span>
+                <div className="dc-h">Your Chair.<br/>Your Style.</div>
+                <div className="dc-sub">Next available: Today @ 2:30 PM · No calls needed</div>
+              </div>
+              <div className="dc-pills">
+                <div className="dc-pill">Book in 30s</div>
+                <div className="dc-pill">3 Barbers</div>
+                <div className="dc-pill">Online Payments</div>
               </div>
             </div>
             <div className="demo-body">
               <span className="demo-tag">Barbershop</span>
               <div className="demo-title">The Barber Shop</div>
               <div className="demo-desc">Online booking, stylist profiles, services &amp; Google reviews — all in one.</div>
-              <div className="demo-link">View Live Demo <span>→</span></div>
+              <div className="demo-link">View Live Demo →</div>
             </div>
           </a>
 
