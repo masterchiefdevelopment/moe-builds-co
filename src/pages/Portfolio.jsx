@@ -4,7 +4,7 @@ const css = `
 .mbc-page {
   --gold: #F5A623;
   --gold-light: #FFD700;
-  --bg: #080808;
+  --bg: rgba(8,8,8,0.0);
   --bg-card: rgba(255,255,255,0.03);
   --border: rgba(255,255,255,0.08);
   --text: #f0f0f0;
@@ -13,11 +13,25 @@ const css = `
   --green: #22C55E;
   --red: #EF4444;
   font-family: 'Inter', -apple-system, sans-serif;
-  background: var(--bg);
+  background: transparent;
   color: var(--text);
   overflow-x: hidden;
   min-height: 100vh;
 }
+
+/* ── PLEXUS CANVAS ───────────────────────────────────── */
+#plexus-canvas {
+  position: fixed; inset: 0; width: 100%; height: 100%;
+  z-index: 0; pointer-events: none; opacity: 0.55;
+}
+/* section backgrounds sit above canvas */
+.trust-bar, .stats-wrap, .demos-wrap, .roi-outer,
+.process-wrap, .pricing-wrap, .cta-wrap, .footer-inner {
+  position: relative; z-index: 1;
+  background: rgba(8,8,8,0.82);
+}
+.hero { z-index: 1; }
+nav { z-index: 100; }
 
 /* ── NAV ─────────────────────────────────────────────── */
 nav {
@@ -385,37 +399,71 @@ input[type=range]::-webkit-slider-thumb {
   .roi-inner { gap: 48px; }
 }
 @media (max-width: 768px) {
-  nav { padding: 16px 20px; }
+  nav { padding: 14px 18px; }
   .nav-links { display: none; }
-  .nav-cta { font-size: 12px; padding: 9px 16px; white-space: nowrap; }
-  .hero { padding: 100px 24px 80px; min-height: 100svh; background-position: 60% 40%; }
-  .hero h1 { font-size: clamp(40px, 11vw, 68px); letter-spacing: -2px; }
-  .hero-sub { font-size: 15px; margin-bottom: 36px; }
+  .nav-cta { font-size: 12px; padding: 8px 14px; white-space: nowrap; }
+
+  /* hero */
+  .hero { padding: 90px 20px 60px; min-height: 100svh; background-position: 60% 40%; }
+  .hero h1 { font-size: clamp(36px, 10vw, 60px); letter-spacing: -2px; }
+  .hero-sub { font-size: 15px; margin-bottom: 32px; }
   .hero-ctas { flex-direction: column; align-items: center; gap: 10px; }
-  .hero-badge { font-size: 11px; padding: 6px 14px; margin-bottom: 24px; }
-  .btn-primary, .btn-secondary { width: 100%; max-width: 280px; text-align: center; padding: 15px 24px; }
+  .hero-badge { font-size: 10px; padding: 5px 12px; margin-bottom: 20px; }
+  .btn-primary, .btn-secondary { width: 100%; max-width: 260px; text-align: center; padding: 14px 20px; font-size: 14px; }
   .scroll-hint { display: none; }
-  .trust-bar { padding: 14px 20px; }
-  .founder-outer { padding: 60px 20px 0 !important; }
-  .founder-section { grid-template-columns: 1fr !important; gap: 32px !important; padding: 36px 24px !important; }
-  .stats-wrap { padding: 60px 20px; }
+
+  /* trust */
+  .trust-bar { padding: 12px 16px; }
+
+  /* founder */
+  .founder-outer { padding: 40px 16px 0 !important; }
+  .founder-section { grid-template-columns: 1fr !important; gap: 24px !important; padding: 28px 20px !important; }
+
+  /* stats */
+  .stats-wrap { padding: 40px 16px; }
   .stats-grid { grid-template-columns: repeat(2,1fr); }
-  .div { margin: 0 20px; }
-  .demos-wrap { padding: 80px 20px; }
-  .demos-header { flex-direction: column; align-items: flex-start; gap: 24px; }
-  .demos-grid { grid-template-columns: 1fr; }
-  .roi-inner { padding: 80px 20px; grid-template-columns: 1fr; gap: 40px; }
-  .process-wrap { padding: 80px 20px; }
-  .process-grid { grid-template-columns: 1fr; }
-  .pricing-wrap { padding: 80px 20px; }
-  .pricing-grid { grid-template-columns: 1fr; }
-  .cta-wrap { padding: 60px 20px 100px; }
-  .cta-box { padding: 60px 24px; }
-  .cta-box h2 { letter-spacing: -1.5px; }
-  .cta-btns { flex-direction: column; align-items: center; }
-  .footer-inner { flex-direction: column; gap: 28px; text-align: center; padding: 40px 20px; }
-  .f-links { flex-wrap: wrap; justify-content: center; gap: 20px; }
+  .stat-box { padding: 28px 16px; }
+  .stat-num { font-size: 38px; letter-spacing: -2px; }
+
+  /* dividers */
+  .div { margin: 0 16px; }
+
+  /* demos */
+  .demos-wrap { padding: 48px 16px; }
+  .demos-header { flex-direction: column; align-items: flex-start; gap: 16px; margin-bottom: 28px; }
+  .demos-grid { grid-template-columns: 1fr; gap: 16px; }
+  .demo-preview { aspect-ratio: unset; height: 200px; }
+  .demo-body { padding: 16px 18px; }
+  .demo-title { font-size: 17px; }
+  .demo-desc { font-size: 13px; margin-bottom: 12px; }
+
+  /* roi */
+  .roi-inner { padding: 48px 16px; grid-template-columns: 1fr; gap: 32px; }
+  .roi-inner .section-title { font-size: clamp(26px, 6vw, 40px); }
+
+  /* process */
+  .process-wrap { padding: 48px 16px; }
+  .process-grid { grid-template-columns: 1fr; gap: 16px; margin-top: 36px; }
+  .process-card { padding: 28px 24px; }
+
+  /* pricing */
+  .pricing-wrap { padding: 48px 16px; }
+  .pricing-grid { grid-template-columns: 1fr; gap: 16px; margin-top: 36px; }
+  .price-card { padding: 28px 24px; }
+  .price-num { font-size: 40px; }
+
+  /* cta */
+  .cta-wrap { padding: 40px 16px 80px; }
+  .cta-box { padding: 48px 20px; }
+  .cta-box h2 { font-size: clamp(28px, 7vw, 44px); letter-spacing: -1.5px; }
+  .cta-box p { font-size: 15px; margin-bottom: 32px; }
+  .cta-btns { flex-direction: column; align-items: center; gap: 10px; }
+
+  /* footer */
+  .footer-inner { flex-direction: column; gap: 24px; text-align: center; padding: 36px 16px; }
+  .f-links { flex-wrap: wrap; justify-content: center; gap: 16px; }
   .f-right { text-align: center; }
+  .section-title { font-size: clamp(28px, 7vw, 48px); }
 }
 `;
 
@@ -468,9 +516,86 @@ export default function Portfolio() {
     return () => window.removeEventListener('scroll', handler);
   }, []);
 
+  useEffect(() => {
+    const canvas = document.getElementById('plexus-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let animId;
+    const GOLD = '245,166,35';
+    const CYAN = '0,210,255';
+    const NODE_COUNT = typeof window !== 'undefined' && window.innerWidth < 768 ? 38 : 65;
+    const CONNECT_DIST = 170;
+
+    const nodes = [];
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    for (let i = 0; i < NODE_COUNT; i++) {
+      nodes.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.45,
+        vy: (Math.random() - 0.5) * 0.45,
+        r: Math.random() * 1.8 + 0.8,
+        pulse: Math.random() * Math.PI * 2,
+        isHot: Math.random() < 0.18,
+      });
+    }
+
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      nodes.forEach(n => {
+        n.x += n.vx; n.y += n.vy; n.pulse += 0.018;
+        if (n.x < 0 || n.x > canvas.width) n.vx *= -1;
+        if (n.y < 0 || n.y > canvas.height) n.vy *= -1;
+      });
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const dx = nodes[i].x - nodes[j].x;
+          const dy = nodes[i].y - nodes[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < CONNECT_DIST) {
+            const a = (1 - dist / CONNECT_DIST) * 0.18;
+            ctx.beginPath();
+            ctx.strokeStyle = `rgba(${GOLD},${a})`;
+            ctx.lineWidth = 0.7;
+            ctx.moveTo(nodes[i].x, nodes[i].y); ctx.lineTo(nodes[j].x, nodes[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+      nodes.forEach(n => {
+        const glow = (Math.sin(n.pulse) + 1) / 2;
+        const a = 0.25 + glow * 0.55;
+        const r = n.r + glow * 1.8;
+        const color = n.isHot ? GOLD : GOLD;
+        const grad = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, r * 5);
+        grad.addColorStop(0, `rgba(${color},${a * 0.7})`);
+        grad.addColorStop(1, `rgba(${color},0)`);
+        ctx.beginPath(); ctx.fillStyle = grad;
+        ctx.arc(n.x, n.y, r * 5, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.fillStyle = `rgba(${color},${a})`;
+        ctx.arc(n.x, n.y, r, 0, Math.PI * 2); ctx.fill();
+        if (n.isHot && glow > 0.7) {
+          ctx.beginPath();
+          ctx.strokeStyle = `rgba(${CYAN},${(glow - 0.7) * 0.25})`;
+          ctx.lineWidth = 1; ctx.arc(n.x, n.y, r * 8, 0, Math.PI * 2); ctx.stroke();
+        }
+      });
+      animId = requestAnimationFrame(draw);
+    };
+    draw();
+    return () => { cancelAnimationFrame(animId); window.removeEventListener('resize', resize); };
+  }, []);
+
   return (
     <div className="mbc-page">
       <style>{css}</style>
+      <canvas id="plexus-canvas" />
 
       {/* NAV */}
       <nav style={{ background: navSolid ? 'rgba(8,8,8,0.97)' : 'rgba(8,8,8,0.85)' }}>
