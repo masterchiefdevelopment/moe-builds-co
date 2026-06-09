@@ -39,58 +39,21 @@ nav {
   min-height: 100vh; display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   position: relative; overflow: hidden; padding: 0 60px; text-align: center;
+  background-image: url('/sa-skyline.jpg');
+  background-size: cover;
+  background-position: center 40%;
 }
-/* night sky gradient */
 .hero::before {
-  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  content: ''; position: absolute; inset: 0; z-index: 0;
+  background: linear-gradient(to top, #080808 0%, rgba(8,8,8,0.82) 40%, rgba(8,8,8,0.55) 100%);
+}
+/* night sky gradient (fallback when no photo) */
+.hero-bg-fallback {
+  position: absolute; inset: 0; pointer-events: none; z-index: 0;
   background:
     radial-gradient(ellipse 120% 60% at 50% 0%, rgba(245,166,35,0.045) 0%, transparent 65%),
     radial-gradient(ellipse 80% 40% at 20% 80%, rgba(245,166,35,0.025) 0%, transparent 55%),
     radial-gradient(ellipse 80% 40% at 80% 80%, rgba(245,100,35,0.018) 0%, transparent 55%);
-}
-/* city lights horizon */
-.hero::after {
-  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 38%; pointer-events: none; z-index: 0;
-  background: linear-gradient(0deg,
-    rgba(245,166,35,0.055) 0%,
-    rgba(245,120,35,0.022) 18%,
-    transparent 100%
-  );
-  mask-image: linear-gradient(0deg, black 0%, transparent 100%);
-}
-/* star field */
-.hero-stars {
-  position: absolute; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
-}
-.hero-stars::before, .hero-stars::after {
-  content: '';
-  position: absolute; inset: 0;
-  background-image:
-    radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.35) 0%, transparent 100%),
-    radial-gradient(1px 1px at 22% 8%, rgba(255,255,255,0.25) 0%, transparent 100%),
-    radial-gradient(1px 1px at 35% 20%, rgba(255,255,255,0.3) 0%, transparent 100%),
-    radial-gradient(1px 1px at 48% 5%, rgba(255,255,255,0.2) 0%, transparent 100%),
-    radial-gradient(1px 1px at 60% 18%, rgba(255,255,255,0.28) 0%, transparent 100%),
-    radial-gradient(1px 1px at 73% 9%, rgba(255,255,255,0.22) 0%, transparent 100%),
-    radial-gradient(1px 1px at 85% 14%, rgba(255,255,255,0.32) 0%, transparent 100%),
-    radial-gradient(1px 1px at 94% 7%, rgba(255,255,255,0.18) 0%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 15% 35%, rgba(255,255,255,0.2) 0%, transparent 100%),
-    radial-gradient(1px 1px at 28% 42%, rgba(255,255,255,0.15) 0%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 55% 28%, rgba(255,255,255,0.22) 0%, transparent 100%),
-    radial-gradient(1px 1px at 78% 33%, rgba(255,255,255,0.18) 0%, transparent 100%),
-    radial-gradient(1px 1px at 92% 25%, rgba(255,255,255,0.14) 0%, transparent 100%);
-}
-.hero-stars::after {
-  background-image:
-    radial-gradient(1px 1px at 5% 25%, rgba(255,220,100,0.2) 0%, transparent 100%),
-    radial-gradient(1px 1px at 18% 12%, rgba(255,255,255,0.15) 0%, transparent 100%),
-    radial-gradient(1px 1px at 42% 30%, rgba(255,255,255,0.12) 0%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 65% 10%, rgba(255,220,100,0.18) 0%, transparent 100%),
-    radial-gradient(1px 1px at 88% 20%, rgba(255,255,255,0.14) 0%, transparent 100%),
-    radial-gradient(1px 1px at 30% 18%, rgba(255,255,255,0.1) 0%, transparent 100%),
-    radial-gradient(1px 1px at 50% 38%, rgba(255,255,255,0.12) 0%, transparent 100%),
-    radial-gradient(1px 1px at 72% 22%, rgba(255,255,255,0.16) 0%, transparent 100%);
-  opacity: 0.7;
 }
 .hero-glow {
   position: absolute; top: 38%; left: 50%; transform: translate(-50%,-50%);
@@ -98,12 +61,7 @@ nav {
   background: radial-gradient(ellipse, rgba(245,166,35,0.09) 0%, transparent 68%);
   pointer-events: none; z-index: 0;
 }
-/* circuit overlay */
-.circuit-overlay {
-  position: absolute; inset: 0; pointer-events: none; z-index: 1; overflow: hidden;
-  mix-blend-mode: screen; opacity: 0.042;
-}
-.circuit-overlay svg { width: 100%; height: 100%; }
+.hero > * { position: relative; z-index: 2; }
 .hero-content { position: relative; z-index: 2; max-width: 940px; }
 
 .hero-badge {
@@ -145,9 +103,6 @@ nav {
 .btn-secondary { background: transparent; color: #fff; font-weight: 600; font-size: 15px; padding: 16px 36px; border-radius: 8px; text-decoration: none; border: 1px solid var(--border); transition: all .2s; display: inline-block; }
 .btn-secondary:hover { border-color: rgba(255,255,255,.25); background: rgba(255,255,255,.04); transform: translateY(-2px); }
 
-/* city silhouette at bottom of hero */
-.city-silhouette { position: absolute; bottom: 0; left: 0; right: 0; z-index: 1; pointer-events: none; }
-.city-silhouette svg { width: 100%; display: block; }
 
 .scroll-hint {
   position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%);
@@ -529,36 +484,35 @@ export default function Portfolio() {
 
       {/* HERO */}
       <div className="hero">
-        <div className="hero-stars"></div>
+        <div className="hero-bg-fallback"></div>
         <div className="hero-glow"></div>
-        <div className="circuit-overlay">
-          <svg viewBox="0 0 1440 900" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-            <line x1="120" y1="0" x2="120" y2="340" stroke="#F5A623" strokeWidth="1.2"/>
-            <line x1="120" y1="340" x2="380" y2="340" stroke="#F5A623" strokeWidth="1.2"/>
-            <line x1="380" y1="340" x2="380" y2="180" stroke="#F5A623" strokeWidth="1.2"/>
-            <line x1="380" y1="180" x2="620" y2="180" stroke="#F5A623" strokeWidth="1.2"/>
-            <line x1="620" y1="180" x2="620" y2="420" stroke="#F5A623" strokeWidth="1.2"/>
-            <line x1="620" y1="420" x2="900" y2="420" stroke="#F5A623" strokeWidth="1.2"/>
-            <line x1="900" y1="420" x2="900" y2="200" stroke="#F5A623" strokeWidth="1.2"/>
-            <line x1="900" y1="200" x2="1200" y2="200" stroke="#F5A623" strokeWidth="1.2"/>
-            <line x1="1200" y1="200" x2="1200" y2="500" stroke="#F5A623" strokeWidth="1.2"/>
-            <line x1="1200" y1="500" x2="1440" y2="500" stroke="#F5A623" strokeWidth="1.2"/>
-            <line x1="260" y1="0" x2="260" y2="240" stroke="#F5A623" strokeWidth="0.8"/>
-            <line x1="260" y1="240" x2="480" y2="240" stroke="#F5A623" strokeWidth="0.8"/>
-            <line x1="760" y1="0" x2="760" y2="310" stroke="#F5A623" strokeWidth="0.8"/>
-            <line x1="760" y1="310" x2="1020" y2="310" stroke="#F5A623" strokeWidth="0.8"/>
-            <line x1="1020" y1="310" x2="1020" y2="90" stroke="#F5A623" strokeWidth="0.8"/>
-            <circle cx="120" cy="340" r="3" fill="#F5A623"><animate attributeName="opacity" values="1;0.2;1" dur="3.1s" repeatCount="indefinite"/></circle>
-            <circle cx="380" cy="180" r="3" fill="#F5A623"><animate attributeName="opacity" values="0.2;1;0.2" dur="2.7s" repeatCount="indefinite"/></circle>
-            <circle cx="620" cy="420" r="3" fill="#F5A623"><animate attributeName="opacity" values="1;0.2;1" dur="3.8s" repeatCount="indefinite"/></circle>
-            <circle cx="900" cy="200" r="3" fill="#F5A623"><animate attributeName="opacity" values="0.3;1;0.3" dur="2.4s" repeatCount="indefinite"/></circle>
-            <circle cx="1200" cy="500" r="3" fill="#F5A623"><animate attributeName="opacity" values="1;0.2;1" dur="3.5s" repeatCount="indefinite"/></circle>
-            <circle cx="260" cy="240" r="2.5" fill="#F5A623"><animate attributeName="opacity" values="0.4;1;0.4" dur="4.2s" repeatCount="indefinite"/></circle>
-            <circle cx="1020" cy="310" r="2.5" fill="#F5A623"><animate attributeName="opacity" values="1;0.3;1" dur="3.0s" repeatCount="indefinite"/></circle>
-            <rect x="116" y="336" width="8" height="8" fill="none" stroke="#F5A623" strokeWidth="0.8"/>
-            <rect x="896" y="196" width="8" height="8" fill="none" stroke="#F5A623" strokeWidth="0.8"/>
-          </svg>
-        </div>
+        {/* Tech circuit overlay */}
+        <svg style={{position:'absolute',inset:0,width:'100%',height:'100%',zIndex:1,pointerEvents:'none',mixBlendMode:'screen'}} xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <style>{`
+              .trace { stroke: rgba(0,220,255,0.07); stroke-width: 1; fill: none; }
+              .node { fill: rgba(245,166,35,0.12); }
+              .sonar { fill: none; stroke: rgba(0,220,255,0.08); stroke-width: 1; }
+              @keyframes travel { from{stroke-dashoffset:200} to{stroke-dashoffset:0} }
+            `}</style>
+          </defs>
+          <line className="trace" x1="0" y1="15%" x2="100%" y2="15%" strokeDasharray="8 120" style={{animation:'travel 6s linear infinite'}}/>
+          <line className="trace" x1="0" y1="30%" x2="100%" y2="30%" strokeDasharray="8 200" style={{animation:'travel 9s linear infinite 1s'}}/>
+          <line className="trace" x1="0" y1="50%" x2="100%" y2="50%" strokeDasharray="8 150" style={{animation:'travel 7s linear infinite 2s'}}/>
+          <line className="trace" x1="0" y1="70%" x2="100%" y2="70%" strokeDasharray="8 180" style={{animation:'travel 8s linear infinite 0.5s'}}/>
+          <line className="trace" x1="0" y1="85%" x2="100%" y2="85%" strokeDasharray="8 130" style={{animation:'travel 5s linear infinite 3s'}}/>
+          <line className="trace" x1="10%" y1="0" x2="10%" y2="100%" strokeDasharray="8 100" style={{animation:'travel 7s linear infinite 1.5s'}}/>
+          <line className="trace" x1="25%" y1="0" x2="25%" y2="100%" strokeDasharray="8 160" style={{animation:'travel 10s linear infinite'}}/>
+          <line className="trace" x1="50%" y1="0" x2="50%" y2="100%" strokeDasharray="8 120" style={{animation:'travel 6s linear infinite 2.5s'}}/>
+          <line className="trace" x1="75%" y1="0" x2="75%" y2="100%" strokeDasharray="8 140" style={{animation:'travel 8s linear infinite 1s'}}/>
+          <line className="trace" x1="90%" y1="0" x2="90%" y2="100%" strokeDasharray="8 110" style={{animation:'travel 5s linear infinite 3.5s'}}/>
+          {[['10%','15%'],['25%','15%'],['50%','15%'],['75%','30%'],['90%','30%'],['10%','50%'],['25%','70%'],['50%','50%'],['75%','50%'],['90%','70%'],['10%','85%'],['50%','85%'],['90%','85%']].map(([x,y],i) => (
+            <circle key={i} className="node" cx={x} cy={y} r="3" style={{animation:`pulse ${3+i*0.4}s ease-in-out infinite ${i*0.3}s`}}/>
+          ))}
+          <circle className="sonar" cx="25%" cy="30%"><animate attributeName="r" values="4;70" dur="4s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.5;0" dur="4s" repeatCount="indefinite"/></circle>
+          <circle className="sonar" cx="75%" cy="70%"><animate attributeName="r" values="4;60" dur="5s" repeatCount="indefinite" begin="1.5s"/><animate attributeName="opacity" values="0.5;0" dur="5s" repeatCount="indefinite" begin="1.5s"/></circle>
+          <circle className="sonar" cx="50%" cy="50%"><animate attributeName="r" values="4;80" dur="6s" repeatCount="indefinite" begin="3s"/><animate attributeName="opacity" values="0.4;0" dur="6s" repeatCount="indefinite" begin="3s"/></circle>
+        </svg>
         <div className="hero-content">
           <div className="hero-badge"><div className="badge-dot"></div>📍 San Antonio, TX · Est. 2026</div>
           <h1>
@@ -572,98 +526,6 @@ export default function Portfolio() {
             <a href="#work" className="btn-primary">See Our Work</a>
             <a href="#contact" className="btn-secondary">Get a Free Quote</a>
           </div>
-        </div>
-
-        {/* City silhouette */}
-        <div className="city-silhouette">
-          <svg viewBox="0 0 1440 160" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax meet">
-            <defs>
-              <linearGradient id="gf2" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="rgba(245,166,35,0)" />
-                <stop offset="100%" stopColor="rgba(245,166,35,0.06)" />
-              </linearGradient>
-              <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#0a0704" stopOpacity="0.9" />
-                <stop offset="100%" stopColor="#080808" />
-              </linearGradient>
-              <filter id="glow2"><feGaussianBlur stdDeviation="2" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
-            </defs>
-            <line x1="0" y1="148" x2="1440" y2="148" stroke="rgba(245,166,35,.22)" strokeWidth="1"/>
-            <rect x="0" y="118" width="55" height="30" fill="#0e0e0e"/>
-            <rect x="60" y="100" width="42" height="48" fill="#0d0d0d"/>
-            <rect x="108" y="120" width="30" height="28" fill="#111"/>
-            <rect x="145" y="88" width="52" height="60" fill="#0d0d0d"/>
-            <rect x="153" y="96" width="7" height="5" fill="rgba(245,166,35,.3)" rx="1"/>
-            <rect x="164" y="96" width="7" height="5" fill="rgba(245,166,35,.15)" rx="1"/>
-            <rect x="153" y="106" width="7" height="5" fill="rgba(245,166,35,.22)" rx="1"/>
-            <rect x="164" y="106" width="7" height="5" fill="rgba(245,166,35,.38)" rx="1"/>
-            <rect x="202" y="68" width="65" height="80" fill="#0c0c0c"/>
-            <rect x="210" y="76" width="8" height="6" fill="rgba(245,166,35,.28)" rx="1"/>
-            <rect x="222" y="76" width="8" height="6" fill="rgba(245,166,35,.14)" rx="1"/>
-            <rect x="234" y="76" width="8" height="6" fill="rgba(245,166,35,.35)" rx="1"/>
-            <rect x="246" y="76" width="8" height="6" fill="rgba(245,166,35,.1)" rx="1"/>
-            <rect x="210" y="88" width="8" height="6" fill="rgba(245,166,35,.18)" rx="1"/>
-            <rect x="222" y="88" width="8" height="6" fill="rgba(245,166,35,.32)" rx="1"/>
-            <rect x="272" y="106" width="36" height="42" fill="#111"/>
-            <rect x="313" y="84" width="46" height="64" fill="#0d0d0d"/>
-            <rect x="364" y="104" width="60" height="44" fill="#0c0c0c"/>
-            <rect x="368" y="78" width="52" height="28" fill="#0d0d0d"/>
-            <rect x="374" y="60" width="40" height="20" fill="#0e0e0e"/>
-            <rect x="380" y="46" width="28" height="16" fill="#111"/>
-            <rect x="383" y="82" width="6" height="4" fill="rgba(245,166,35,.32)" rx="1"/>
-            <rect x="393" y="82" width="6" height="4" fill="rgba(245,166,35,.18)" rx="1"/>
-            <rect x="403" y="82" width="6" height="4" fill="rgba(245,166,35,.28)" rx="1"/>
-            <rect x="383" y="64" width="6" height="4" fill="rgba(245,166,35,.38)" rx="1"/>
-            <rect x="393" y="64" width="6" height="4" fill="rgba(245,166,35,.2)" rx="1"/>
-            <rect x="430" y="84" width="36" height="64" fill="#111"/>
-            <rect x="470" y="98" width="48" height="50" fill="#0d0d0d"/>
-            <rect x="522" y="70" width="46" height="78" fill="#0e0e0e"/>
-            <rect x="572" y="94" width="32" height="54" fill="#111"/>
-            <rect x="608" y="74" width="55" height="74" fill="#0c0c0c"/>
-            <rect x="615" y="82" width="8" height="6" fill="rgba(245,166,35,.25)" rx="1"/>
-            <rect x="627" y="82" width="8" height="6" fill="rgba(245,166,35,.38)" rx="1"/>
-            <rect x="639" y="82" width="8" height="6" fill="rgba(245,166,35,.16)" rx="1"/>
-            <rect x="615" y="94" width="8" height="6" fill="rgba(245,166,35,.28)" rx="1"/>
-            <rect x="627" y="94" width="8" height="6" fill="rgba(245,166,35,.14)" rx="1"/>
-            {/* SA Tower */}
-            <rect x="830" y="128" width="34" height="20" fill="#0e0e0e"/>
-            <rect x="845" y="14" width="7" height="118" fill="#111"/>
-            <ellipse cx="848" cy="58" rx="22" ry="8" fill="#0e0e0e"/>
-            <ellipse cx="848" cy="44" rx="20" ry="14" fill="#0f0f0f"/>
-            <rect x="844" y="38" width="5" height="4" fill="rgba(245,166,35,.55)" rx="1"/>
-            <rect x="851" y="36" width="5" height="4" fill="rgba(245,166,35,.7)" rx="1" filter="url(#glow2)"/>
-            <rect x="858" y="40" width="5" height="4" fill="rgba(245,166,35,.45)" rx="1"/>
-            <rect x="846" y="4" width="4" height="12" fill="#1a1a1a"/>
-            <circle cx="848" cy="4" r="2.5" fill="rgba(255,70,70,.9)">
-              <animate attributeName="opacity" values="1;.1;1" dur="1.4s" repeatCount="indefinite"/>
-            </circle>
-            <rect x="668" y="96" width="36" height="52" fill="#111"/>
-            <rect x="708" y="108" width="46" height="40" fill="#0d0d0d"/>
-            <rect x="758" y="86" width="40" height="62" fill="#111"/>
-            <rect x="882" y="100" width="42" height="48" fill="#111"/>
-            <rect x="928" y="80" width="50" height="68" fill="#0d0d0d"/>
-            <rect x="928" y="72" width="50" height="10" fill="#101010"/>
-            <rect x="936" y="86" width="7" height="5" fill="rgba(245,166,35,.24)" rx="1"/>
-            <rect x="947" y="86" width="7" height="5" fill="rgba(245,166,35,.34)" rx="1"/>
-            <rect x="982" y="94" width="36" height="54" fill="#111"/>
-            <rect x="1022" y="74" width="55" height="74" fill="#0e0e0e"/>
-            <rect x="1030" y="82" width="7" height="5" fill="rgba(245,166,35,.2)" rx="1"/>
-            <rect x="1041" y="82" width="7" height="5" fill="rgba(245,166,35,.32)" rx="1"/>
-            <rect x="1052" y="82" width="7" height="5" fill="rgba(245,166,35,.14)" rx="1"/>
-            <rect x="1030" y="93" width="7" height="5" fill="rgba(245,166,35,.28)" rx="1"/>
-            <rect x="1041" y="93" width="7" height="5" fill="rgba(245,166,35,.12)" rx="1"/>
-            <rect x="1082" y="110" width="46" height="38" fill="#111"/>
-            <rect x="1132" y="68" width="60" height="80" fill="#0c0c0c"/>
-            <rect x="1132" y="60" width="60" height="10" fill="#0e0e0e"/>
-            <rect x="1140" y="74" width="7" height="5" fill="rgba(245,166,35,.3)" rx="1"/>
-            <rect x="1151" y="74" width="7" height="5" fill="rgba(245,166,35,.18)" rx="1"/>
-            <rect x="1162" y="74" width="7" height="5" fill="rgba(245,166,35,.26)" rx="1"/>
-            <rect x="1196" y="108" width="36" height="40" fill="#111"/>
-            <rect x="1236" y="94" width="46" height="54" fill="#0d0d0d"/>
-            <rect x="1286" y="116" width="52" height="32" fill="#111"/>
-            <rect x="1342" y="120" width="98" height="28" fill="#0e0e0e"/>
-            <rect x="0" y="130" width="1440" height="30" fill="url(#fade)"/>
-          </svg>
         </div>
 
         <div className="scroll-hint">
