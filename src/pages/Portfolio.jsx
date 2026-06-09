@@ -368,10 +368,14 @@ input[type=range]::-webkit-slider-thumb {
 @media (max-width: 768px) {
   nav { padding: 16px 20px; }
   .nav-links { display: none; }
+  .nav-cta { font-size: 12px; padding: 9px 16px; white-space: nowrap; }
   .hero { padding: 80px 20px 0; }
   .hero h1 { font-size: clamp(42px, 12vw, 72px); letter-spacing: -2px; }
   .hero-sub { font-size: 16px; }
+  .hero-ctas { flex-direction: column; align-items: center; }
   .trust-bar { padding: 14px 20px; }
+  .founder-outer { padding: 60px 20px 0 !important; }
+  .founder-section { grid-template-columns: 1fr !important; gap: 32px !important; padding: 36px 24px !important; }
   .stats-wrap { padding: 60px 20px; }
   .stats-grid { grid-template-columns: repeat(2,1fr); }
   .div { margin: 0 20px; }
@@ -384,11 +388,12 @@ input[type=range]::-webkit-slider-thumb {
   .pricing-wrap { padding: 80px 20px; }
   .pricing-grid { grid-template-columns: 1fr; }
   .cta-wrap { padding: 60px 20px 100px; }
-  .cta-box { padding: 60px 28px; }
+  .cta-box { padding: 60px 24px; }
   .cta-box h2 { letter-spacing: -1.5px; }
+  .cta-btns { flex-direction: column; align-items: center; }
   .footer-inner { flex-direction: column; gap: 28px; text-align: center; padding: 40px 20px; }
+  .f-links { flex-wrap: wrap; justify-content: center; gap: 20px; }
   .f-right { text-align: center; }
-  .founder-section { grid-template-columns: 1fr !important; gap: 32px !important; padding: 36px 24px !important; }
 }
 `;
 
@@ -616,7 +621,7 @@ export default function Portfolio() {
       </div>
 
       {/* FOUNDER */}
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '80px 60px 0' }}>
+      <div className="founder-outer" style={{ maxWidth: '1200px', margin: '0 auto', padding: '80px 60px 0' }}>
         <div className="reveal founder-section" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '60px', alignItems: 'center', background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '20px', padding: '56px 60px' }}>
           <div style={{ textAlign: 'center' }}>
             <img
@@ -914,7 +919,7 @@ export default function Portfolio() {
       <div className="process-wrap" id="process">
         <div className="reveal">
           <div className="section-label">How It Works</div>
-          <h2 className="section-title">From Idea to Live in 14 Days</h2>
+          <h2 className="section-title">From Discovery Call to Live in 7 Days</h2>
           <p className="section-sub">No long contracts. No hand-holding. We move fast and build right.</p>
         </div>
         <div className="process-grid">
@@ -971,7 +976,7 @@ export default function Portfolio() {
               <li><span className="ck">✓</span> Online ordering system</li>
               <li><span className="ck">✓</span> Photo gallery</li>
               <li><span className="ck">✓</span> Review integration</li>
-              <li><span className="ck">✓</span> Custom domain setup</li>
+              <li><span className="ck">✓</span> Direct online payments</li>
             </ul>
           </div>
           <div className="price-card reveal d2">
@@ -987,8 +992,10 @@ export default function Portfolio() {
             </ul>
           </div>
         </div>
-        <div className="reveal" style={{ textAlign: 'center', marginTop: '32px' }}>
-          <p style={{ fontSize: '14px', color: '#333' }}>+ Monthly maintenance from <strong style={{ color: 'var(--text-muted)' }}>$100/mo</strong> · Payment plans available · First 3 clients get Founder Pricing</p>
+        <div className="reveal" style={{ textAlign: 'center', marginTop: '32px', display: 'flex', flexDirection: 'column', gap: '7px' }}>
+          <p style={{ fontSize: '13px', color: '#444' }}>+ Monthly maintenance: <strong style={{ color: 'var(--text-muted)', fontWeight: 500 }}>Basic $100/mo · Standard $150/mo · Premium $200/mo</strong> · Payment plans available · First 3 clients get Founder Pricing</p>
+          <p style={{ fontSize: '13px', color: '#444' }}>+ Custom domain $50 add-on · Rush delivery $200 · Extra page $75 · Logo design $100</p>
+          <p style={{ fontSize: '13px', color: '#444' }}>Payment options: 50% deposit / 50% at launch · 6-month plan · $400 deposit + rest on launch</p>
         </div>
       </div>
 
