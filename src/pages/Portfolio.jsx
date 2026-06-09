@@ -40,19 +40,70 @@ nav {
   align-items: center; justify-content: center;
   position: relative; overflow: hidden; padding: 0 60px; text-align: center;
 }
-/* dot grid bg */
-.hero::after {
+/* night sky gradient */
+.hero::before {
   content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0;
-  background-image: radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px);
-  background-size: 32px 32px;
-  mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 40%, transparent 100%);
+  background:
+    radial-gradient(ellipse 120% 60% at 50% 0%, rgba(245,166,35,0.045) 0%, transparent 65%),
+    radial-gradient(ellipse 80% 40% at 20% 80%, rgba(245,166,35,0.025) 0%, transparent 55%),
+    radial-gradient(ellipse 80% 40% at 80% 80%, rgba(245,100,35,0.018) 0%, transparent 55%);
+}
+/* city lights horizon */
+.hero::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 38%; pointer-events: none; z-index: 0;
+  background: linear-gradient(0deg,
+    rgba(245,166,35,0.055) 0%,
+    rgba(245,120,35,0.022) 18%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(0deg, black 0%, transparent 100%);
+}
+/* star field */
+.hero-stars {
+  position: absolute; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
+}
+.hero-stars::before, .hero-stars::after {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.35) 0%, transparent 100%),
+    radial-gradient(1px 1px at 22% 8%, rgba(255,255,255,0.25) 0%, transparent 100%),
+    radial-gradient(1px 1px at 35% 20%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 48% 5%, rgba(255,255,255,0.2) 0%, transparent 100%),
+    radial-gradient(1px 1px at 60% 18%, rgba(255,255,255,0.28) 0%, transparent 100%),
+    radial-gradient(1px 1px at 73% 9%, rgba(255,255,255,0.22) 0%, transparent 100%),
+    radial-gradient(1px 1px at 85% 14%, rgba(255,255,255,0.32) 0%, transparent 100%),
+    radial-gradient(1px 1px at 94% 7%, rgba(255,255,255,0.18) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 15% 35%, rgba(255,255,255,0.2) 0%, transparent 100%),
+    radial-gradient(1px 1px at 28% 42%, rgba(255,255,255,0.15) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 55% 28%, rgba(255,255,255,0.22) 0%, transparent 100%),
+    radial-gradient(1px 1px at 78% 33%, rgba(255,255,255,0.18) 0%, transparent 100%),
+    radial-gradient(1px 1px at 92% 25%, rgba(255,255,255,0.14) 0%, transparent 100%);
+}
+.hero-stars::after {
+  background-image:
+    radial-gradient(1px 1px at 5% 25%, rgba(255,220,100,0.2) 0%, transparent 100%),
+    radial-gradient(1px 1px at 18% 12%, rgba(255,255,255,0.15) 0%, transparent 100%),
+    radial-gradient(1px 1px at 42% 30%, rgba(255,255,255,0.12) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 65% 10%, rgba(255,220,100,0.18) 0%, transparent 100%),
+    radial-gradient(1px 1px at 88% 20%, rgba(255,255,255,0.14) 0%, transparent 100%),
+    radial-gradient(1px 1px at 30% 18%, rgba(255,255,255,0.1) 0%, transparent 100%),
+    radial-gradient(1px 1px at 50% 38%, rgba(255,255,255,0.12) 0%, transparent 100%),
+    radial-gradient(1px 1px at 72% 22%, rgba(255,255,255,0.16) 0%, transparent 100%);
+  opacity: 0.7;
 }
 .hero-glow {
   position: absolute; top: 38%; left: 50%; transform: translate(-50%,-50%);
   width: 1000px; height: 500px;
-  background: radial-gradient(ellipse, rgba(245,166,35,0.07) 0%, transparent 68%);
+  background: radial-gradient(ellipse, rgba(245,166,35,0.09) 0%, transparent 68%);
   pointer-events: none; z-index: 0;
 }
+/* circuit overlay */
+.circuit-overlay {
+  position: absolute; inset: 0; pointer-events: none; z-index: 1; overflow: hidden;
+  mix-blend-mode: screen; opacity: 0.042;
+}
+.circuit-overlay svg { width: 100%; height: 100%; }
 .hero-content { position: relative; z-index: 2; max-width: 940px; }
 
 .hero-badge {
@@ -94,9 +145,9 @@ nav {
 .btn-secondary { background: transparent; color: #fff; font-weight: 600; font-size: 15px; padding: 16px 36px; border-radius: 8px; text-decoration: none; border: 1px solid var(--border); transition: all .2s; display: inline-block; }
 .btn-secondary:hover { border-color: rgba(255,255,255,.25); background: rgba(255,255,255,.04); transform: translateY(-2px); }
 
-/* skyline */
-.skyline-wrap { position: absolute; bottom: 0; left: 0; right: 0; z-index: 1; pointer-events: none; }
-.skyline-wrap svg { width: 100%; display: block; }
+/* city silhouette at bottom of hero */
+.city-silhouette { position: absolute; bottom: 0; left: 0; right: 0; z-index: 1; pointer-events: none; }
+.city-silhouette svg { width: 100%; display: block; }
 
 .scroll-hint {
   position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%);
@@ -169,9 +220,19 @@ nav {
 .bdot:nth-child(1){background:#FF5F57} .bdot:nth-child(2){background:#FEBC2E} .bdot:nth-child(3){background:#28C840}
 .burl { flex: 1; margin: 0 10px; height: 14px; background: rgba(255,255,255,.07); border-radius: 3px; font-size: 9px; color: #444; display: flex; align-items: center; padding: 0 8px; }
 
+/* DEMO CARD shimmer sweep on hover */
+.demo-card::before {
+  content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgba(245,166,35,0.04) 50%, transparent 100%);
+  z-index: 5; transition: left .55s ease; pointer-events: none;
+}
+.demo-card:hover::before { left: 150%; }
+/* URL bar edge fade */
+.burl { mask-image: linear-gradient(90deg, black 70%, transparent 100%); }
+
 /* RESTAURANT MOCKUP */
 .mock-restaurant {
-  background: linear-gradient(160deg, #130600 0%, #1e0b00 100%);
+  background: linear-gradient(160deg, #0e0400 0%, #1a0800 50%, #0f0300 100%);
   width: 100%; height: 100%; padding-top: 26px; box-sizing: border-box; overflow: hidden;
 }
 .mr-nav {
@@ -189,8 +250,11 @@ nav {
 .mr-btn-main { background: var(--gold); color: #000; font-size: 7px; font-weight: 800; padding: 5px 10px; border-radius: 4px; }
 .mr-btn-sec { border: 1px solid rgba(255,255,255,.15); color: rgba(255,255,255,.6); font-size: 7px; font-weight: 600; padding: 5px 10px; border-radius: 4px; }
 .mr-menu-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 5px; padding: 0 12px; }
-.mr-menu-item { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07); border-radius: 5px; padding: 6px; }
-.mr-item-img { height: 24px; background: linear-gradient(135deg, rgba(245,166,35,.2), rgba(245,166,35,.06)); border-radius: 3px; margin-bottom: 4px; }
+.mr-menu-item { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07); border-radius: 5px; padding: 6px; position: relative; }
+.mr-menu-item:first-child::after { content: '★ Popular'; position: absolute; top: 3px; right: 3px; font-size: 5px; font-weight: 800; color: #000; background: var(--gold); padding: 1px 4px; border-radius: 2px; letter-spacing: .3px; }
+.mr-item-img { height: 24px; background: linear-gradient(135deg, rgba(245,166,35,.25), rgba(200,80,20,.15)); border-radius: 3px; margin-bottom: 4px; position: relative; overflow: hidden; }
+.mr-item-img::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.08) 50%, transparent 100%); background-size: 200% 100%; animation: imgShimmer 2.2s ease-in-out infinite; }
+@keyframes imgShimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
 .mr-item-name { font-size: 6px; font-weight: 700; color: rgba(255,255,255,.8); margin-bottom: 2px; }
 .mr-item-price { font-size: 6px; color: var(--gold); font-weight: 700; }
 .mr-bar { display: flex; gap: 10px; padding: 6px 12px; border-top: 1px solid rgba(255,255,255,.04); margin-top: 6px; }
@@ -198,7 +262,7 @@ nav {
 
 /* FOOD TRUCK MOCKUP */
 .mock-foodtruck {
-  background: linear-gradient(160deg, #04050f 0%, #080820 100%);
+  background: linear-gradient(160deg, #020410 0%, #050820 50%, #030615 100%);
   width: 100%; height: 100%; padding-top: 26px; box-sizing: border-box; overflow: hidden;
 }
 .mf-nav {
@@ -207,7 +271,7 @@ nav {
 }
 .mf-logo { font-size: 8px; font-weight: 800; color: #7C9FFF; letter-spacing: .5px; text-transform: uppercase; }
 .mf-live { display: flex; align-items: center; gap: 4px; }
-.mf-live-dot { width: 5px; height: 5px; border-radius: 50%; background: #22C55E; animation: pulse 1.5s ease-in-out infinite; }
+.mf-live-dot { width: 5px; height: 5px; border-radius: 50%; background: #22C55E; animation: pulse 1.5s ease-in-out infinite; box-shadow: 0 0 6px rgba(34,197,94,.7); }
 .mf-live-text { font-size: 7px; color: #22C55E; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
 .mf-location { padding: 7px 12px; background: rgba(34,197,94,.07); border-bottom: 1px solid rgba(34,197,94,.1); display: flex; align-items: center; gap: 5px; }
 .mf-pin { font-size: 9px; }
@@ -226,7 +290,7 @@ nav {
 
 /* BARBER MOCKUP */
 .mock-barber {
-  background: linear-gradient(160deg, #030a03 0%, #071207 100%);
+  background: linear-gradient(160deg, #010d02 0%, #031005 50%, #020b02 100%);
   width: 100%; height: 100%; padding-top: 26px; box-sizing: border-box; overflow: hidden;
 }
 .mb-nav {
@@ -234,7 +298,6 @@ nav {
   padding: 6px 12px; border-bottom: 1px solid rgba(34,197,94,.1);
 }
 .mb-logo { font-size: 8px; font-weight: 800; color: #22C55E; letter-spacing: 1px; text-transform: uppercase; }
-.mb-book-btn { background: #22C55E; color: #000; font-size: 6px; font-weight: 800; padding: 4px 8px; border-radius: 3px; }
 .mb-hero { padding: 10px 12px 8px; }
 .mb-eyebrow { font-size: 6px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #22C55E; margin-bottom: 3px; }
 .mb-h1 { font-size: 13px; font-weight: 900; color: #fff; letter-spacing: -.5px; line-height: 1.1; margin-bottom: 3px; }
@@ -244,7 +307,9 @@ nav {
 .mb-avail-text { font-size: 6px; font-weight: 700; color: #22C55E; }
 .mb-barbers { display: grid; grid-template-columns: repeat(3,1fr); gap: 5px; padding: 0 12px; }
 .mb-barber { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07); border-radius: 5px; padding: 7px; text-align: center; }
-.mb-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, rgba(34,197,94,.2), rgba(34,197,94,.06)); margin: 0 auto 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+.mb-book-btn { background: #22C55E; color: #000; font-size: 6px; font-weight: 800; padding: 4px 8px; border-radius: 3px; animation: bookGlow 2.5s ease-in-out infinite; }
+@keyframes bookGlow { 0%,100%{box-shadow:0 0 4px rgba(34,197,94,.4)} 50%{box-shadow:0 0 10px rgba(34,197,94,.75)} }
+.mb-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, rgba(34,197,94,.22), rgba(34,197,94,.06)); margin: 0 auto 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; box-shadow: 0 0 8px rgba(34,197,94,.2); }
 .mb-name { font-size: 6px; font-weight: 700; color: rgba(255,255,255,.8); margin-bottom: 2px; }
 .mb-role { font-size: 5px; color: rgba(255,255,255,.35); }
 .mb-services { display: flex; gap: 4px; padding: 7px 12px 0; flex-wrap: wrap; }
@@ -464,9 +529,38 @@ export default function Portfolio() {
 
       {/* HERO */}
       <div className="hero">
+        <div className="hero-stars"></div>
         <div className="hero-glow"></div>
+        <div className="circuit-overlay">
+          <svg viewBox="0 0 1440 900" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+            <line x1="120" y1="0" x2="120" y2="340" stroke="#F5A623" strokeWidth="1.2"/>
+            <line x1="120" y1="340" x2="380" y2="340" stroke="#F5A623" strokeWidth="1.2"/>
+            <line x1="380" y1="340" x2="380" y2="180" stroke="#F5A623" strokeWidth="1.2"/>
+            <line x1="380" y1="180" x2="620" y2="180" stroke="#F5A623" strokeWidth="1.2"/>
+            <line x1="620" y1="180" x2="620" y2="420" stroke="#F5A623" strokeWidth="1.2"/>
+            <line x1="620" y1="420" x2="900" y2="420" stroke="#F5A623" strokeWidth="1.2"/>
+            <line x1="900" y1="420" x2="900" y2="200" stroke="#F5A623" strokeWidth="1.2"/>
+            <line x1="900" y1="200" x2="1200" y2="200" stroke="#F5A623" strokeWidth="1.2"/>
+            <line x1="1200" y1="200" x2="1200" y2="500" stroke="#F5A623" strokeWidth="1.2"/>
+            <line x1="1200" y1="500" x2="1440" y2="500" stroke="#F5A623" strokeWidth="1.2"/>
+            <line x1="260" y1="0" x2="260" y2="240" stroke="#F5A623" strokeWidth="0.8"/>
+            <line x1="260" y1="240" x2="480" y2="240" stroke="#F5A623" strokeWidth="0.8"/>
+            <line x1="760" y1="0" x2="760" y2="310" stroke="#F5A623" strokeWidth="0.8"/>
+            <line x1="760" y1="310" x2="1020" y2="310" stroke="#F5A623" strokeWidth="0.8"/>
+            <line x1="1020" y1="310" x2="1020" y2="90" stroke="#F5A623" strokeWidth="0.8"/>
+            <circle cx="120" cy="340" r="3" fill="#F5A623"><animate attributeName="opacity" values="1;0.2;1" dur="3.1s" repeatCount="indefinite"/></circle>
+            <circle cx="380" cy="180" r="3" fill="#F5A623"><animate attributeName="opacity" values="0.2;1;0.2" dur="2.7s" repeatCount="indefinite"/></circle>
+            <circle cx="620" cy="420" r="3" fill="#F5A623"><animate attributeName="opacity" values="1;0.2;1" dur="3.8s" repeatCount="indefinite"/></circle>
+            <circle cx="900" cy="200" r="3" fill="#F5A623"><animate attributeName="opacity" values="0.3;1;0.3" dur="2.4s" repeatCount="indefinite"/></circle>
+            <circle cx="1200" cy="500" r="3" fill="#F5A623"><animate attributeName="opacity" values="1;0.2;1" dur="3.5s" repeatCount="indefinite"/></circle>
+            <circle cx="260" cy="240" r="2.5" fill="#F5A623"><animate attributeName="opacity" values="0.4;1;0.4" dur="4.2s" repeatCount="indefinite"/></circle>
+            <circle cx="1020" cy="310" r="2.5" fill="#F5A623"><animate attributeName="opacity" values="1;0.3;1" dur="3.0s" repeatCount="indefinite"/></circle>
+            <rect x="116" y="336" width="8" height="8" fill="none" stroke="#F5A623" strokeWidth="0.8"/>
+            <rect x="896" y="196" width="8" height="8" fill="none" stroke="#F5A623" strokeWidth="0.8"/>
+          </svg>
+        </div>
         <div className="hero-content">
-          <div className="hero-badge"><div className="badge-dot"></div>📍 San Antonio, TX · Est. 2024</div>
+          <div className="hero-badge"><div className="badge-dot"></div>📍 San Antonio, TX · Est. 2026</div>
           <h1>
             <span className="l1">San Antonio's</span>
             <span className="grad">Web Agency.</span>
@@ -480,112 +574,95 @@ export default function Portfolio() {
           </div>
         </div>
 
-        {/* SA SKYLINE SVG */}
-        <div className="skyline-wrap">
-          <svg viewBox="0 0 1440 210" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax meet">
+        {/* City silhouette */}
+        <div className="city-silhouette">
+          <svg viewBox="0 0 1440 160" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax meet">
             <defs>
-              <linearGradient id="gf" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="rgba(0,0,0,0)" />
+              <linearGradient id="gf2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="rgba(245,166,35,0)" />
+                <stop offset="100%" stopColor="rgba(245,166,35,0.06)" />
+              </linearGradient>
+              <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#0a0704" stopOpacity="0.9" />
                 <stop offset="100%" stopColor="#080808" />
               </linearGradient>
-              <filter id="glow"><feGaussianBlur stdDeviation="2.5" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
+              <filter id="glow2"><feGaussianBlur stdDeviation="2" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
             </defs>
-            <line x1="0" y1="200" x2="1440" y2="200" stroke="rgba(245,166,35,.18)" strokeWidth="1" />
-            <rect x="0" y="168" width="58" height="32" fill="#0e0e0e" />
-            <rect x="62" y="152" width="44" height="48" fill="#0d0d0d" />
-            <rect x="112" y="172" width="32" height="28" fill="#111" />
-            <rect x="148" y="142" width="54" height="58" fill="#0d0d0d" />
-            <rect x="156" y="150" width="8" height="6" fill="rgba(245,166,35,.22)" rx="1" />
-            <rect x="168" y="150" width="8" height="6" fill="rgba(245,166,35,.14)" rx="1" />
-            <rect x="156" y="162" width="8" height="6" fill="rgba(245,166,35,.28)" rx="1" />
-            <rect x="168" y="162" width="8" height="6" fill="rgba(245,166,35,.1)" rx="1" />
-            <rect x="180" y="162" width="8" height="6" fill="rgba(245,166,35,.2)" rx="1" />
-            <rect x="207" y="118" width="68" height="82" fill="#0c0c0c" />
-            <rect x="215" y="126" width="9" height="7" fill="rgba(245,166,35,.28)" rx="1" />
-            <rect x="228" y="126" width="9" height="7" fill="rgba(245,166,35,.14)" rx="1" />
-            <rect x="241" y="126" width="9" height="7" fill="rgba(245,166,35,.32)" rx="1" />
-            <rect x="255" y="126" width="9" height="7" fill="rgba(245,166,35,.1)" rx="1" />
-            <rect x="215" y="140" width="9" height="7" fill="rgba(245,166,35,.18)" rx="1" />
-            <rect x="228" y="140" width="9" height="7" fill="rgba(245,166,35,.35)" rx="1" />
-            <rect x="241" y="140" width="9" height="7" fill="rgba(245,166,35,.12)" rx="1" />
-            <rect x="255" y="140" width="9" height="7" fill="rgba(245,166,35,.24)" rx="1" />
-            <rect x="215" y="154" width="9" height="7" fill="rgba(245,166,35,.3)" rx="1" />
-            <rect x="228" y="154" width="9" height="7" fill="rgba(245,166,35,.16)" rx="1" />
-            <rect x="280" y="158" width="38" height="42" fill="#111" />
-            <rect x="323" y="136" width="48" height="64" fill="#0d0d0d" />
-            <rect x="376" y="155" width="62" height="45" fill="#0c0c0c" />
-            <rect x="381" y="128" width="52" height="30" fill="#0d0d0d" />
-            <rect x="387" y="108" width="40" height="24" fill="#0e0e0e" />
-            <rect x="393" y="92" width="28" height="19" fill="#111" />
-            <rect x="398" y="82" width="18" height="13" fill="#141414" />
-            <rect x="385" y="132" width="7" height="5" fill="rgba(245,166,35,.3)" rx="1" />
-            <rect x="396" y="132" width="7" height="5" fill="rgba(245,166,35,.18)" rx="1" />
-            <rect x="407" y="132" width="7" height="5" fill="rgba(245,166,35,.28)" rx="1" />
-            <rect x="418" y="132" width="7" height="5" fill="rgba(245,166,35,.12)" rx="1" />
-            <rect x="391" y="112" width="7" height="5" fill="rgba(245,166,35,.25)" rx="1" />
-            <rect x="402" y="112" width="7" height="5" fill="rgba(245,166,35,.38)" rx="1" />
-            <rect x="413" y="112" width="7" height="5" fill="rgba(245,166,35,.15)" rx="1" />
-            <rect x="444" y="132" width="38" height="68" fill="#111" />
-            <rect x="486" y="148" width="50" height="52" fill="#0d0d0d" />
-            <rect x="540" y="118" width="48" height="82" fill="#0e0e0e" />
-            <rect x="540" y="110" width="48" height="11" fill="#101010" />
-            <rect x="593" y="145" width="34" height="55" fill="#111" />
-            <rect x="631" y="122" width="58" height="78" fill="#0c0c0c" />
-            <rect x="639" y="130" width="9" height="7" fill="rgba(245,166,35,.24)" rx="1" />
-            <rect x="652" y="130" width="9" height="7" fill="rgba(245,166,35,.36)" rx="1" />
-            <rect x="665" y="130" width="9" height="7" fill="rgba(245,166,35,.16)" rx="1" />
-            <rect x="639" y="143" width="9" height="7" fill="rgba(245,166,35,.12)" rx="1" />
-            <rect x="652" y="143" width="9" height="7" fill="rgba(245,166,35,.28)" rx="1" />
-            <rect x="665" y="143" width="9" height="7" fill="rgba(245,166,35,.2)" rx="1" />
-            <rect x="693" y="145" width="38" height="55" fill="#111" />
-            <rect x="735" y="158" width="48" height="42" fill="#0d0d0d" />
-            <rect x="787" y="135" width="42" height="65" fill="#111" />
-            <rect x="854" y="182" width="36" height="18" fill="#0e0e0e" />
-            <rect x="869" y="28" width="8" height="157" fill="#111" />
-            <polygon points="869,140 877,140 875,180 871,180" fill="#0e0e0e" />
-            <ellipse cx="873" cy="100" rx="26" ry="10" fill="#0e0e0e" />
-            <rect x="847" y="100" width="52" height="7" fill="#111" />
-            <ellipse cx="873" cy="78" rx="24" ry="18" fill="#0f0f0f" />
-            <ellipse cx="873" cy="78" rx="24" ry="4" fill="#111" />
-            <rect x="858" y="70" width="5" height="4" fill="rgba(245,166,35,.45)" rx="1" />
-            <rect x="866" y="67" width="5" height="4" fill="rgba(245,166,35,.65)" rx="1" filter="url(#glow)" />
-            <rect x="874" y="67" width="5" height="4" fill="rgba(245,166,35,.65)" rx="1" filter="url(#glow)" />
-            <rect x="882" y="70" width="5" height="4" fill="rgba(245,166,35,.4)" rx="1" />
-            <rect x="871" y="6" width="4" height="24" fill="#1a1a1a" />
-            <circle cx="873" cy="5" r="2.5" fill="rgba(255,70,70,.9)">
-              <animate attributeName="opacity" values="1;.15;1" dur="1.4s" repeatCount="indefinite" />
+            <line x1="0" y1="148" x2="1440" y2="148" stroke="rgba(245,166,35,.22)" strokeWidth="1"/>
+            <rect x="0" y="118" width="55" height="30" fill="#0e0e0e"/>
+            <rect x="60" y="100" width="42" height="48" fill="#0d0d0d"/>
+            <rect x="108" y="120" width="30" height="28" fill="#111"/>
+            <rect x="145" y="88" width="52" height="60" fill="#0d0d0d"/>
+            <rect x="153" y="96" width="7" height="5" fill="rgba(245,166,35,.3)" rx="1"/>
+            <rect x="164" y="96" width="7" height="5" fill="rgba(245,166,35,.15)" rx="1"/>
+            <rect x="153" y="106" width="7" height="5" fill="rgba(245,166,35,.22)" rx="1"/>
+            <rect x="164" y="106" width="7" height="5" fill="rgba(245,166,35,.38)" rx="1"/>
+            <rect x="202" y="68" width="65" height="80" fill="#0c0c0c"/>
+            <rect x="210" y="76" width="8" height="6" fill="rgba(245,166,35,.28)" rx="1"/>
+            <rect x="222" y="76" width="8" height="6" fill="rgba(245,166,35,.14)" rx="1"/>
+            <rect x="234" y="76" width="8" height="6" fill="rgba(245,166,35,.35)" rx="1"/>
+            <rect x="246" y="76" width="8" height="6" fill="rgba(245,166,35,.1)" rx="1"/>
+            <rect x="210" y="88" width="8" height="6" fill="rgba(245,166,35,.18)" rx="1"/>
+            <rect x="222" y="88" width="8" height="6" fill="rgba(245,166,35,.32)" rx="1"/>
+            <rect x="272" y="106" width="36" height="42" fill="#111"/>
+            <rect x="313" y="84" width="46" height="64" fill="#0d0d0d"/>
+            <rect x="364" y="104" width="60" height="44" fill="#0c0c0c"/>
+            <rect x="368" y="78" width="52" height="28" fill="#0d0d0d"/>
+            <rect x="374" y="60" width="40" height="20" fill="#0e0e0e"/>
+            <rect x="380" y="46" width="28" height="16" fill="#111"/>
+            <rect x="383" y="82" width="6" height="4" fill="rgba(245,166,35,.32)" rx="1"/>
+            <rect x="393" y="82" width="6" height="4" fill="rgba(245,166,35,.18)" rx="1"/>
+            <rect x="403" y="82" width="6" height="4" fill="rgba(245,166,35,.28)" rx="1"/>
+            <rect x="383" y="64" width="6" height="4" fill="rgba(245,166,35,.38)" rx="1"/>
+            <rect x="393" y="64" width="6" height="4" fill="rgba(245,166,35,.2)" rx="1"/>
+            <rect x="430" y="84" width="36" height="64" fill="#111"/>
+            <rect x="470" y="98" width="48" height="50" fill="#0d0d0d"/>
+            <rect x="522" y="70" width="46" height="78" fill="#0e0e0e"/>
+            <rect x="572" y="94" width="32" height="54" fill="#111"/>
+            <rect x="608" y="74" width="55" height="74" fill="#0c0c0c"/>
+            <rect x="615" y="82" width="8" height="6" fill="rgba(245,166,35,.25)" rx="1"/>
+            <rect x="627" y="82" width="8" height="6" fill="rgba(245,166,35,.38)" rx="1"/>
+            <rect x="639" y="82" width="8" height="6" fill="rgba(245,166,35,.16)" rx="1"/>
+            <rect x="615" y="94" width="8" height="6" fill="rgba(245,166,35,.28)" rx="1"/>
+            <rect x="627" y="94" width="8" height="6" fill="rgba(245,166,35,.14)" rx="1"/>
+            {/* SA Tower */}
+            <rect x="830" y="128" width="34" height="20" fill="#0e0e0e"/>
+            <rect x="845" y="14" width="7" height="118" fill="#111"/>
+            <ellipse cx="848" cy="58" rx="22" ry="8" fill="#0e0e0e"/>
+            <ellipse cx="848" cy="44" rx="20" ry="14" fill="#0f0f0f"/>
+            <rect x="844" y="38" width="5" height="4" fill="rgba(245,166,35,.55)" rx="1"/>
+            <rect x="851" y="36" width="5" height="4" fill="rgba(245,166,35,.7)" rx="1" filter="url(#glow2)"/>
+            <rect x="858" y="40" width="5" height="4" fill="rgba(245,166,35,.45)" rx="1"/>
+            <rect x="846" y="4" width="4" height="12" fill="#1a1a1a"/>
+            <circle cx="848" cy="4" r="2.5" fill="rgba(255,70,70,.9)">
+              <animate attributeName="opacity" values="1;.1;1" dur="1.4s" repeatCount="indefinite"/>
             </circle>
-            <rect x="910" y="148" width="44" height="52" fill="#111" />
-            <rect x="958" y="128" width="52" height="72" fill="#0d0d0d" />
-            <rect x="958" y="120" width="52" height="11" fill="#101010" />
-            <rect x="966" y="134" width="8" height="6" fill="rgba(245,166,35,.22)" rx="1" />
-            <rect x="978" y="134" width="8" height="6" fill="rgba(245,166,35,.32)" rx="1" />
-            <rect x="990" y="134" width="8" height="6" fill="rgba(245,166,35,.14)" rx="1" />
-            <rect x="966" y="146" width="8" height="6" fill="rgba(245,166,35,.28)" rx="1" />
-            <rect x="978" y="146" width="8" height="6" fill="rgba(245,166,35,.18)" rx="1" />
-            <rect x="1014" y="152" width="38" height="48" fill="#111" />
-            <rect x="1056" y="122" width="58" height="78" fill="#0e0e0e" />
-            <rect x="1064" y="130" width="8" height="6" fill="rgba(245,166,35,.2)" rx="1" />
-            <rect x="1076" y="130" width="8" height="6" fill="rgba(245,166,35,.3)" rx="1" />
-            <rect x="1088" y="130" width="8" height="6" fill="rgba(245,166,35,.14)" rx="1" />
-            <rect x="1100" y="130" width="8" height="6" fill="rgba(245,166,35,.26)" rx="1" />
-            <rect x="1064" y="143" width="8" height="6" fill="rgba(245,166,35,.34)" rx="1" />
-            <rect x="1076" y="143" width="8" height="6" fill="rgba(245,166,35,.12)" rx="1" />
-            <rect x="1088" y="143" width="8" height="6" fill="rgba(245,166,35,.22)" rx="1" />
-            <rect x="1118" y="142" width="48" height="58" fill="#111" />
-            <rect x="1170" y="115" width="62" height="85" fill="#0c0c0c" />
-            <rect x="1170" y="107" width="62" height="11" fill="#0e0e0e" />
-            <rect x="1178" y="120" width="8" height="6" fill="rgba(245,166,35,.32)" rx="1" />
-            <rect x="1190" y="120" width="8" height="6" fill="rgba(245,166,35,.18)" rx="1" />
-            <rect x="1202" y="120" width="8" height="6" fill="rgba(245,166,35,.28)" rx="1" />
-            <rect x="1216" y="120" width="8" height="6" fill="rgba(245,166,35,.12)" rx="1" />
-            <rect x="1178" y="134" width="8" height="6" fill="rgba(245,166,35,.22)" rx="1" />
-            <rect x="1190" y="134" width="8" height="6" fill="rgba(245,166,35,.36)" rx="1" />
-            <rect x="1236" y="158" width="38" height="42" fill="#111" />
-            <rect x="1278" y="142" width="48" height="58" fill="#0d0d0d" />
-            <rect x="1330" y="168" width="55" height="32" fill="#111" />
-            <rect x="1390" y="172" width="50" height="28" fill="#0e0e0e" />
-            <rect x="0" y="185" width="1440" height="25" fill="url(#gf)" />
+            <rect x="668" y="96" width="36" height="52" fill="#111"/>
+            <rect x="708" y="108" width="46" height="40" fill="#0d0d0d"/>
+            <rect x="758" y="86" width="40" height="62" fill="#111"/>
+            <rect x="882" y="100" width="42" height="48" fill="#111"/>
+            <rect x="928" y="80" width="50" height="68" fill="#0d0d0d"/>
+            <rect x="928" y="72" width="50" height="10" fill="#101010"/>
+            <rect x="936" y="86" width="7" height="5" fill="rgba(245,166,35,.24)" rx="1"/>
+            <rect x="947" y="86" width="7" height="5" fill="rgba(245,166,35,.34)" rx="1"/>
+            <rect x="982" y="94" width="36" height="54" fill="#111"/>
+            <rect x="1022" y="74" width="55" height="74" fill="#0e0e0e"/>
+            <rect x="1030" y="82" width="7" height="5" fill="rgba(245,166,35,.2)" rx="1"/>
+            <rect x="1041" y="82" width="7" height="5" fill="rgba(245,166,35,.32)" rx="1"/>
+            <rect x="1052" y="82" width="7" height="5" fill="rgba(245,166,35,.14)" rx="1"/>
+            <rect x="1030" y="93" width="7" height="5" fill="rgba(245,166,35,.28)" rx="1"/>
+            <rect x="1041" y="93" width="7" height="5" fill="rgba(245,166,35,.12)" rx="1"/>
+            <rect x="1082" y="110" width="46" height="38" fill="#111"/>
+            <rect x="1132" y="68" width="60" height="80" fill="#0c0c0c"/>
+            <rect x="1132" y="60" width="60" height="10" fill="#0e0e0e"/>
+            <rect x="1140" y="74" width="7" height="5" fill="rgba(245,166,35,.3)" rx="1"/>
+            <rect x="1151" y="74" width="7" height="5" fill="rgba(245,166,35,.18)" rx="1"/>
+            <rect x="1162" y="74" width="7" height="5" fill="rgba(245,166,35,.26)" rx="1"/>
+            <rect x="1196" y="108" width="36" height="40" fill="#111"/>
+            <rect x="1236" y="94" width="46" height="54" fill="#0d0d0d"/>
+            <rect x="1286" y="116" width="52" height="32" fill="#111"/>
+            <rect x="1342" y="120" width="98" height="28" fill="#0e0e0e"/>
+            <rect x="0" y="130" width="1440" height="30" fill="url(#fade)"/>
           </svg>
         </div>
 
@@ -992,10 +1069,8 @@ export default function Portfolio() {
             </ul>
           </div>
         </div>
-        <div className="reveal" style={{ textAlign: 'center', marginTop: '32px', display: 'flex', flexDirection: 'column', gap: '7px' }}>
-          <p style={{ fontSize: '13px', color: '#444' }}>+ Monthly maintenance: <strong style={{ color: 'var(--text-muted)', fontWeight: 500 }}>Basic $100/mo · Standard $150/mo · Premium $200/mo</strong> · Payment plans available · First 3 clients get Founder Pricing</p>
-          <p style={{ fontSize: '13px', color: '#444' }}>+ Custom domain $50 add-on · Rush delivery $200 · Extra page $75 · Logo design $100</p>
-          <p style={{ fontSize: '13px', color: '#444' }}>Payment options: 50% deposit / 50% at launch · 6-month plan · $400 deposit + rest on launch</p>
+        <div className="reveal" style={{ textAlign: 'center', marginTop: '32px' }}>
+          <p style={{ fontSize: '13px', color: '#444' }}>+ Monthly maintenance: <strong style={{ color: 'var(--text-muted)', fontWeight: 500 }}>Basic $100/mo · Standard $150/mo · Premium $200/mo</strong> · Payment plans available</p>
         </div>
       </div>
 
@@ -1027,7 +1102,7 @@ export default function Portfolio() {
           <a href="#pricing">Pricing</a>
           <a href="mailto:moebuildsco@gmail.com">Contact</a>
         </div>
-        <div className="f-right">© 2024 Moe Builds Co.<br />San Antonio, Texas 🤘</div>
+        <div className="f-right">© 2026 Moe Builds Co.<br />San Antonio, Texas 🤘</div>
       </div>
     </div>
   );
