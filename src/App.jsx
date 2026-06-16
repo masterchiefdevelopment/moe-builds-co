@@ -5,6 +5,7 @@ import { Toaster } from 'react-hot-toast'
 import { supabase } from './lib/supabase'
 import { useAuthStore } from './store/authStore'
 import ScrollToTop from './components/ScrollToTop'
+import { DemoProvider } from './context/DemoContext'
 
 // ── Barber demo (unchanged) ──────────────────────────────────
 import Nav from './components/Nav'
@@ -178,6 +179,7 @@ export default function App() {
           success: { iconTheme: { primary: '#D4AF37', secondary: '#0A0A0A' } },
         }}
       />
+      <DemoProvider>
       <Routes>
 
         {/* ── Portfolio (unchanged) ──────────────────── */}
@@ -239,6 +241,7 @@ export default function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
 
       </Routes>
+      </DemoProvider>
     </BrowserRouter>
   )
 }

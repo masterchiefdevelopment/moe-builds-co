@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
-import { TRUCK_CONFIG as C } from './config'
+import { TRUCK_CONFIG } from './config'
+import { useDemoConfig } from '../../context/DemoContext'
 import { useAuthStore } from '../../store/authStore'
 import { createOrder, getCustomerOrders, getProfile, submitContact } from '../../lib/supabase'
 import AddOnsDrawer from '../../components/foodtruck/AddOnsDrawer'
@@ -9,7 +10,7 @@ import { scrollToSection } from '../../components/foodtruck/scrollUtils'
 import toast from 'react-hot-toast'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const CATEGORIES = Object.keys(C.menu)
+const CATEGORIES = Object.keys(TRUCK_CONFIG.menu)
 const STAMPS = 10
 const DAY_KEYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const DAY_NAMES = { Sun: 'Sunday', Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday' }
@@ -44,13 +45,13 @@ function buildTimeSlotsFromHours(hoursStr) {
 const sectionLabel = (text) => (
   <span style={{
     display: 'inline-block', fontFamily: "'Inter', sans-serif", fontSize: 12, letterSpacing: 3,
-    textTransform: 'uppercase', fontWeight: 600, color: C.accentAmber, marginBottom: 10,
+    textTransform: 'uppercase', fontWeight: 600, color: TRUCK_CONFIG.accentAmber, marginBottom: 10,
   }}>{text}</span>
 )
 
 const sectionTitle = (text) => (
   <h2 style={{
-    fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(34px, 6vw, 54px)', color: C.textPrimary,
+    fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(34px, 6vw, 54px)', color: TRUCK_CONFIG.textPrimary,
     letterSpacing: 1.5, marginBottom: 16,
   }}>{text}</h2>
 )
@@ -68,7 +69,7 @@ function Lightbox({ images, index, onClose, onChange }) {
   }, [index, images.length, onClose, onChange])
 
   const navBtnStyle = {
-    background: 'rgba(255,255,255,0.08)', border: `1px solid ${C.borderSubtle}`, color: '#fff', borderRadius: '50%',
+    background: 'rgba(255,255,255,0.08)', border: `1px solid ${TRUCK_CONFIG.borderSubtle}`, color: '#fff', borderRadius: '50%',
     width: 44, height: 44, fontSize: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
   }
 
@@ -86,6 +87,7 @@ function Lightbox({ images, index, onClose, onChange }) {
 }
 
 export default function FoodTruckHome() {
+  const C = useDemoConfig(TRUCK_CONFIG)
   const { user, profile, setProfile } = useAuthStore()
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [authOpen, setAuthOpen] = useState(false)
