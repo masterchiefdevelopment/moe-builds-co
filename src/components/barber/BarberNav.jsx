@@ -2,30 +2,50 @@ import { useState, useEffect, useRef } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { signOut, getProfile } from '../../lib/supabase'
 import { useAuthStore } from '../../store/authStore'
-import { SHOP_CONFIG as C } from '../../pages/barber/config'
+import { SHOP_CONFIG } from '../../pages/barber/config'
+import { useDemoConfig, useDemoControls } from '../../context/DemoContext'
 import { scrollToSection } from './scrollUtils'
 import AuthModal from './AuthModal'
 import toast from 'react-hot-toast'
 
 const SECTIONS = ['home', 'barbers', 'book', 'gallery', 'visit']
 const LINKS = [
-  { label: 'Home', id: 'home' },
+  { label: 'Home',    id: 'home'    },
   { label: 'Barbers', id: 'barbers' },
-  { label: 'Book', id: 'book' },
+  { label: 'Book',    id: 'book'    },
   { label: 'Gallery', id: 'gallery' },
-  { label: 'Visit', id: 'visit' },
+  { label: 'Visit',   id: 'visit'   },
+]
+
+const COLORS = [
+  { hex: '#D4AF37', label: 'Gold'   },
+  { hex: '#2563eb', label: 'Blue'   },
+  { hex: '#16a34a', label: 'Green'  },
+  { hex: '#dc2626', label: 'Red'    },
+  { hex: '#9333ea', label: 'Purple' },
+  { hex: '#F97316', label: 'Orange' },
+  { hex: '#0f766e', label: 'Teal'   },
+  { hex: '#be185d', label: 'Pink'   },
+  { hex: '#1e293b', label: 'Dark'   },
 ]
 
 export default function BarberNav() {
   const location = useLocation()
   const navigate = useNavigate()
   const { user, profile, clearAuth, setProfile } = useAuthStore()
-  const [scrolled, setScrolled] = useState(false)
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [leaving, setLeaving] = useState(false)
-  const [activeSection, setActiveSection] = useState('home')
-  const [authOpen, setAuthOpen] = useState(false)
-  const drawerRef = useRef(null)
+  const C        = useDemoConfig(SHOP_CONFIG)
+  const setDemo  = useDemoControls()
+
+  const [scrolled,      setScrolled]      = useState(false)
+  const [menuOpen,      setMenuOpen]       = useState(false)
+  const [leaving,       setLeaving]        = useState(false)
+  const [activeSection, setActiveSection]  = useState('home')
+  const [authOpen,      setAuthOpen]       = useState(false)
+  const [settingsOpen,  setSettingsOpen]   = useState(false)
+  const [draftName,     setDraftName]      = useState('')
+  const [draftColor,    setDraftColor]     = useState(COLORS[0].hex)
+  const drawerRef   = useRef(null)
+  const settingsRef = useRef(null)
 
   const onHome = location.pathname === '/barber'
 
@@ -43,22 +63,16 @@ export default function BarberNav() {
   useEffect(() => {
     if (!onHome) return
     const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) setActiveSection(entry.target.id)
-      })
+      entries.forEach(entry => { if (entry.isIntersecting) setActiveSection(entry.target.id) })
     }, { rootMargin: '-40% 0px -55% 0px', threshold: 0 })
-
-    SECTIONS.forEach(id => {
-      const el = document.getElementById(id)
-      if (el) observer.observe(el)
-    })
+    SECTIONS.forEach(id => { const el = document.getElementById(id); if (el) observer.observe(el) })
     return () => observer.disconnect()
   }, [onHome])
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : ''
     if (!menuOpen) return
-    const onKey = (e) => { if (e.key === 'Escape') setMenuOpen(false) }
+    const onKey          = (e) => { if (e.key === 'Escape') setMenuOpen(false) }
     const onClickOutside = (e) => { if (drawerRef.current && !drawerRef.current.contains(e.target)) setMenuOpen(false) }
     document.addEventListener('keydown', onKey)
     document.addEventListener('mousedown', onClickOutside)
@@ -69,15 +83,17 @@ export default function BarberNav() {
     }
   }, [menuOpen])
 
+  useEffect(() => {
+    if (!settingsOpen) return
+    const onClickOutside = (e) => { if (settingsRef.current && !settingsRef.current.contains(e.target)) setSettingsOpen(false) }
+    document.addEventListener('mousedown', onClickOutside)
+    return () => document.removeEventListener('mousedown', onClickOutside)
+  }, [settingsOpen])
+
   const goToSection = (id) => (e) => {
     e.preventDefault()
     setMenuOpen(false)
-    if (onHome) {
-      scrollToSection(id)
-    } else {
-      navigate('/barber')
-      setTimeout(() => scrollToSection(id), 80)
-    }
+    if (onHome) { scrollToSection(id) } else { navigate('/barber'); setTimeout(() => scrollToSection(id), 80) }
   }
 
   const isActive = (id) => onHome && activeSection === id
@@ -91,6 +107,16 @@ export default function BarberNav() {
     setLeaving(false)
   }
 
+  const handleCreateDemo = () => {
+    setDemo({
+      name:        draftName.trim() || SHOP_CONFIG.name,
+      accentColor: draftColor,
+    })
+    setSettingsOpen(false)
+    toast.success('Demo updated')
+    scrollToSection('home')
+  }
+
   return (
     <>
       <header style={{
@@ -102,13 +128,14 @@ export default function BarberNav() {
         borderBottom: scrolled ? `1px solid ${C.borderSubtle}` : '1px solid transparent',
         transition: 'all 0.3s',
       }}>
+
         <a href="#home" onClick={goToSection('home')} style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', cursor: 'pointer' }}>
           <span style={{
             width: 36, height: 36, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: `conic-gradient(from 0deg, ${C.accentColor} 0deg 90deg, #fff 90deg 180deg, ${C.accentRed} 180deg 270deg, #fff 270deg 360deg)`,
-            fontSize: 15, color: '#0a0a0a', fontWeight: 700,
-          }}>{C.logoText}</span>
-          <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 22, letterSpacing: 1, color: '#fff' }}>
+            background: `conic-gradient(from 0deg, ${C.accentColor} 0deg 90deg, #fff 90deg 180deg, ${C.accentColor}88 180deg 270deg, #fff 270deg 360deg)`,
+            fontSize: 15, color: '#0a0a0a', fontWeight: 700, transition: 'background 0.3s',
+          }}>{SHOP_CONFIG.logoText}</span>
+          <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 22, letterSpacing: 1, color: '#fff', transition: 'all 0.3s' }}>
             {C.name}
           </span>
         </a>
@@ -147,15 +174,77 @@ export default function BarberNav() {
             <>
               <button type="button" onClick={() => setAuthOpen(true)} style={{
                 fontFamily: "'Inter', sans-serif", fontSize: 13, letterSpacing: 1, textTransform: 'uppercase',
-                background: 'none', border: 'none', textDecoration: 'none', color: '#fff', padding: '8px 12px', cursor: 'pointer',
+                background: 'none', border: 'none', color: '#fff', padding: '8px 12px', cursor: 'pointer',
               }}>Sign In</button>
               <a href="#book" onClick={goToSection('book')} className="brb-book-btn" style={{
                 fontFamily: "'Inter', sans-serif", fontSize: 13, fontWeight: 700, letterSpacing: 1,
                 textTransform: 'uppercase', textDecoration: 'none', color: '#0a0a0a', background: C.accentColor,
-                padding: '10px 22px', borderRadius: 100, transition: 'transform 0.2s, filter 0.2s', cursor: 'pointer',
+                padding: '10px 22px', borderRadius: 100, transition: 'transform 0.2s, filter 0.2s, background 0.3s', cursor: 'pointer',
               }}>Book Now</a>
             </>
           )}
+
+          <div style={{ position: 'relative' }} ref={settingsRef}>
+            <button
+              type="button"
+              onClick={() => setSettingsOpen(o => !o)}
+              title="Demo settings"
+              style={{
+                background: settingsOpen ? 'rgba(255,255,255,0.08)' : 'transparent',
+                border: `1px solid ${settingsOpen ? C.accentColor : 'rgba(255,255,255,0.15)'}`,
+                borderRadius: '50%', width: 36, height: 36, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: '#fff', fontSize: 16, transition: 'all 0.2s',
+              }}
+            >⚙</button>
+
+            {settingsOpen && (
+              <div style={{
+                position: 'absolute', top: 46, right: 0, width: 280,
+                background: '#161616', border: `1px solid ${C.accentColor}44`,
+                borderRadius: 12, padding: 20, zIndex: 200,
+                boxShadow: '0 16px 48px rgba(0,0,0,0.6)',
+              }}>
+                <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 17, color: '#fff', marginBottom: 16 }}>Demo Settings</p>
+
+                <label style={{ fontSize: 11, letterSpacing: 2, textTransform: 'uppercase', color: '#666', display: 'block', marginBottom: 6 }}>Business name</label>
+                <input
+                  value={draftName}
+                  onChange={e => setDraftName(e.target.value)}
+                  placeholder={SHOP_CONFIG.name}
+                  style={{
+                    width: '100%', background: '#0d0d0d', border: '1px solid #2a2a2a', borderRadius: 8,
+                    padding: '9px 12px', fontSize: 14, color: '#fff', outline: 'none',
+                    fontFamily: "'Inter', sans-serif", marginBottom: 16, boxSizing: 'border-box',
+                  }}
+                />
+
+                <label style={{ fontSize: 11, letterSpacing: 2, textTransform: 'uppercase', color: '#666', display: 'block', marginBottom: 10 }}>Brand color</label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
+                  {COLORS.map(c => (
+                    <button key={c.hex} type="button" title={c.label} onClick={() => setDraftColor(c.hex)} style={{
+                      width: 28, height: 28, borderRadius: '50%', background: c.hex, border: 'none', cursor: 'pointer',
+                      outline: draftColor === c.hex ? '3px solid #fff' : '3px solid transparent', outlineOffset: 2, transition: 'outline 0.15s',
+                    }} />
+                  ))}
+                </div>
+
+                <div style={{ height: 4, borderRadius: 2, background: draftColor, marginBottom: 16, transition: 'background 0.2s' }} />
+
+                <button type="button" onClick={handleCreateDemo} style={{
+                  width: '100%', padding: '11px 0', background: draftColor, border: 'none', borderRadius: 8,
+                  color: '#0d0d0d', fontFamily: "'Inter', sans-serif", fontSize: 13, fontWeight: 700,
+                  letterSpacing: 1, textTransform: 'uppercase', cursor: 'pointer', transition: 'filter 0.2s',
+                }}>Create Demo</button>
+
+                <button type="button" onClick={() => { setDemo({}); setDraftName(''); setDraftColor(COLORS[0].hex); setSettingsOpen(false) }} style={{
+                  width: '100%', marginTop: 8, padding: '9px 0', background: 'transparent',
+                  border: '1px solid #2a2a2a', borderRadius: 8, color: '#555',
+                  fontFamily: "'Inter', sans-serif", fontSize: 12, cursor: 'pointer',
+                }}>Reset to Default</button>
+              </div>
+            )}
+          </div>
         </div>
 
         <button onClick={() => setMenuOpen(o => !o)} className="brb-nav-mob" aria-label="Toggle menu" style={{
@@ -174,9 +263,10 @@ export default function BarberNav() {
       {menuOpen && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 98, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(3px)' }} />
       )}
+
       <nav ref={drawerRef} style={{
         position: 'fixed', top: 0, right: 0, bottom: 0, zIndex: 99, width: 'min(82vw, 340px)',
-        background: C.bgSecondary, borderLeft: `1px solid ${C.borderSubtle}`, padding: '90px 28px 28px',
+        background: '#161616', borderLeft: `1px solid ${C.borderSubtle}`, padding: '90px 28px 28px',
         transform: menuOpen ? 'translateX(0)' : 'translateX(100%)', transition: 'transform 0.35s cubic-bezier(0.4,0,0.2,1)',
         display: 'flex', flexDirection: 'column', gap: 6,
       }}>
@@ -186,12 +276,40 @@ export default function BarberNav() {
             color: isActive(id) ? C.accentColor : '#fff', padding: '10px 0', borderBottom: `1px solid ${C.borderSubtle}`,
           }}>{label}</a>
         ))}
-        <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 10 }}>
+
+        <div style={{ marginTop: 16, padding: '16px 0', borderBottom: '1px solid #2a2a2a' }}>
+          <p style={{ fontSize: 11, letterSpacing: 2, textTransform: 'uppercase', color: '#555', marginBottom: 10 }}>Demo settings</p>
+          <input
+            value={draftName}
+            onChange={e => setDraftName(e.target.value)}
+            placeholder="Business name"
+            style={{
+              width: '100%', background: '#0d0d0d', border: '1px solid #2a2a2a', borderRadius: 8,
+              padding: '9px 12px', fontSize: 14, color: '#fff', outline: 'none',
+              fontFamily: "'Inter', sans-serif", marginBottom: 10, boxSizing: 'border-box',
+            }}
+          />
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
+            {COLORS.map(c => (
+              <button key={c.hex} type="button" onClick={() => setDraftColor(c.hex)} style={{
+                width: 28, height: 28, borderRadius: '50%', background: c.hex, border: 'none', cursor: 'pointer',
+                outline: draftColor === c.hex ? '3px solid #fff' : '3px solid transparent', outlineOffset: 2,
+              }} />
+            ))}
+          </div>
+          <button type="button" onClick={handleCreateDemo} style={{
+            width: '100%', padding: '11px 0', background: draftColor, border: 'none', borderRadius: 8,
+            color: '#0d0d0d', fontFamily: "'Inter', sans-serif", fontSize: 13, fontWeight: 700,
+            letterSpacing: 1, textTransform: 'uppercase', cursor: 'pointer',
+          }}>Create Demo</button>
+        </div>
+
+        <div style={{ marginTop: 4, display: 'flex', flexDirection: 'column', gap: 10 }}>
           {user ? (
             <>
               <Link to="/barber/profile" onClick={() => setMenuOpen(false)} style={{
                 fontFamily: "'Inter', sans-serif", fontSize: 14, letterSpacing: 1, textTransform: 'uppercase',
-                textDecoration: 'none', color: C.accentColor, padding: '12px 16px', border: `1px solid ${C.borderSubtle}`, borderRadius: 8, textAlign: 'center', cursor: 'pointer',
+                textDecoration: 'none', color: C.accentColor, padding: '12px 16px', border: `1px solid ${C.borderSubtle}`, borderRadius: 8, textAlign: 'center',
               }}>My Profile</Link>
               <button type="button" onClick={handleSignOut} disabled={leaving} style={{
                 fontFamily: "'Inter', sans-serif", fontSize: 13, letterSpacing: 1, textTransform: 'uppercase',
@@ -202,11 +320,11 @@ export default function BarberNav() {
             <>
               <button type="button" onClick={() => { setMenuOpen(false); setAuthOpen(true) }} style={{
                 fontFamily: "'Inter', sans-serif", fontSize: 14, letterSpacing: 1, textTransform: 'uppercase',
-                textDecoration: 'none', color: '#fff', padding: '12px 16px', border: `1px solid ${C.borderSubtle}`, borderRadius: 8, textAlign: 'center', cursor: 'pointer', background: 'transparent',
+                background: 'transparent', border: `1px solid ${C.borderSubtle}`, borderRadius: 8, color: '#fff', padding: '12px 16px', cursor: 'pointer', width: '100%',
               }}>Sign In</button>
               <a href="#book" onClick={goToSection('book')} style={{
                 fontFamily: "'Inter', sans-serif", fontSize: 14, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase',
-                textDecoration: 'none', color: '#0a0a0a', background: C.accentColor, padding: '12px 16px', borderRadius: 8, textAlign: 'center', cursor: 'pointer',
+                textDecoration: 'none', color: '#0a0a0a', background: C.accentColor, padding: '12px 16px', borderRadius: 8, textAlign: 'center',
               }}>Book Now</a>
             </>
           )}
@@ -219,9 +337,9 @@ export default function BarberNav() {
         .brb-nav-desk { display: flex !important; }
         .brb-nav-mob  { display: none  !important; }
         .brb-nav-link:hover span { transform: scaleX(1) !important; }
-        .brb-nav-link:hover { color: ${C.accentColor} !important; }
+        .brb-nav-link:hover { color: ${SHOP_CONFIG.accentColor} !important; }
         .brb-book-btn:hover { transform: scale(1.04); filter: brightness(1.1); }
-        .brb-ghost-btn:hover { color: #fff !important; border-color: ${C.accentColor} !important; }
+        .brb-ghost-btn:hover { color: #fff !important; border-color: ${SHOP_CONFIG.accentColor} !important; }
         @media (max-width: 860px) {
           .brb-nav-desk { display: none !important; }
           .brb-nav-mob  { display: flex !important; }
